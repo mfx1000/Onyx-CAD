@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service — OnyxCAD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #060a10;
+            --surface: #0b1220;
+            --surface2: #101b2e;
+            --blue: #2b7de9;
+            --blue-bright: #4a9af5;
+            --blue-dim: rgba(43, 125, 233, 0.12);
+            --orange: #e07b39;
+            --text: #b8ccd8;
+            --text-dim: #4a6478;
+            --text-bright: #ddeeff;
+            --mono: #6a9cbf;
+            --border: rgba(43, 125, 233, 0.14);
+            --line: rgba(43, 125, 233, 0.18);
+            --grid: rgba(43, 125, 233, 0.055)
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-x: hidden
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 40px 40px
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(rgba(43, 125, 233, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(43, 125, 233, 0.1) 1px, transparent 1px);
+            background-size: 200px 200px
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            color: var(--text-bright)
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace
+        }
+
+        a {
+            color: var(--blue-bright);
+            text-decoration: none
+        }
+
+        ul {
+            list-style: none
+        }
+
+        /* ═══ NAV ═════════════════════════════════ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: rgba(6, 10, 16, 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .nav-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--text-bright)
+        }
+
+        .nav-logo .dot {
+            color: var(--blue)
+        }
+
+        .nav-logo .cad {
+            color: var(--blue)
+        }
+
+        .nav-tagline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding-left: 16px;
+            border-left: 1px solid var(--border);
+            margin-left: 16px
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            transition: color 0.2s
+        }
+
+        .nav-links a:hover {
+            color: var(--text-bright)
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .btn-outline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 8px 20px;
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-outline:hover {
+            border-color: var(--blue);
+            color: var(--blue-bright)
+        }
+
+        .btn-filled {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 8px 20px;
+            background: var(--blue);
+            color: #fff;
+            border: 1px solid var(--blue);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-filled:hover {
+            background: var(--blue-bright)
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            nav {
+                padding: 16px 20px
+            }
+        }
+
+        /* ═══ ZONE LABEL ═════════════════════════ */
+        .zone-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 24px
+        }
+
+        .zone-label::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 1px;
+            background: var(--blue)
+        }
+
+        .zone-tag {
+            border: 1px solid var(--blue);
+            padding: 2px 8px;
+            font-size: 9px;
+            letter-spacing: 0.12em
+        }
+
+        /* ═══ CONTENT ════════════════════════════ */
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            position: relative;
+            z-index: 1
+        }
+
+        .page-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 52px;
+            color: var(--text-bright);
+            margin-bottom: 12px
+        }
+
+        .last-updated {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            margin-bottom: 56px
+        }
+
+        .section-heading {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 600;
+            font-size: 22px;
+            color: var(--text-bright);
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            margin-bottom: 20px
+        }
+
+        .section-num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            color: var(--blue);
+            margin-right: 8px
+        }
+
+        .body-text {
+            font-family: 'Barlow', sans-serif;
+            font-weight: 300;
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.8;
+            margin-bottom: 16px
+        }
+
+        .body-text a {
+            color: var(--blue-bright);
+            text-decoration: none
+        }
+
+        .body-text a:hover {
+            text-decoration: underline
+        }
+
+        .contact-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            margin: 24px 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--mono)
+        }
+
+        .small-print {
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 40px 0;
+            position: relative;
+            z-index: 1;
+            line-height: 1.7
+        }
+
+        /* ═══ FOOTER ══════════════════════════════ */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            z-index: 1
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 16px
+        }
+
+        .footer-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-bright)
+        }
+
+        .footer-logo .dot {
+            color: var(--blue)
+        }
+
+        .footer-logo .cad {
+            color: var(--blue)
+        }
+
+        .footer-tagline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding-left: 20px;
+            border-left: 1px solid var(--border)
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            transition: color 0.2s
+        }
+
+        .footer-links a:hover {
+            color: var(--blue-bright)
+        }
+
+        @media(max-width:768px) {
+            footer {
+                flex-direction: column;
+                text-align: center
+            }
+
+            .content {
+                padding: 48px 20px
+            }
+
+            .page-title {
+                font-size: 36px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ NAV ════════════════════════════════════════ -->
+    <nav>
+        <div style="display:flex;align-items:center">
+            <a href="/" class="nav-logo">Onyx<span class="cad">CAD</span><span class="dot">.</span></a>
+            <span class="nav-tagline">like PDFs for CAD</span>
+        </div>
+        <div class="nav-links">
+            <a href="/#features">Features</a>
+            <a href="/#how">How it works</a>
+            <a href="/#pricing">Pricing</a>
+        </div>
+        <div class="nav-right">
+            <a href="/login" class="btn-outline">Log in</a>
+            <a href="/login" class="btn-filled">Get started →</a>
+        </div>
+    </nav>
+
+    <!-- ═══ CONTENT ═══════════════════════════════════ -->
+    <div class="content">
+        <div class="zone-label"><span class="zone-tag">LEGAL</span> Terms of Service</div>
+        <h1 class="page-title">Terms of Service</h1>
+        <div class="last-updated">LAST UPDATED: APRIL 2026</div>
+
+        <!-- SECTION 01 -->
+        <h2 class="section-heading"><span class="section-num">01 —</span> Agreement to these terms</h2>
+        <p class="body-text">These Terms of Service ("Terms") govern your access to and use of OnyxCAD, operated at
+            onyxcad.com ("the Service"). By creating an account or using the Service, you agree to be bound by these
+            Terms.</p>
+        <p class="body-text">If you do not agree to these Terms, do not use the Service.</p>
+        <p class="body-text">These Terms are governed by the laws of England and Wales. Any disputes will be subject to
+            the exclusive jurisdiction of the courts of England and Wales.</p>
+
+        <!-- SECTION 02 -->
+        <h2 class="section-heading"><span class="section-num">02 —</span> The service</h2>
+        <p class="body-text">OnyxCAD provides a browser-based tool that allows users to:</p>
+        <p class="body-text">— Upload STEP files and view them in a 3D browser viewer.<br>
+            — Annotate individual faces of a 3D model with tolerances, thread specifications, colours, and notes.<br>
+            — Export annotated STEP files with metadata embedded in the file structure.<br>
+            — Generate shareable read-only links to annotated models for viewing by third parties without an account.
+        </p>
+        <p class="body-text">The number of active projects available to you at any time depends on your subscription
+            plan. An "active project" is a STEP file and its associated annotations that is currently accessible for
+            editing and sharing. You may archive projects to free up active slots — archived projects retain all data
+            but their share links are paused until restored.</p>
+
+        <!-- SECTION 03 -->
+        <h2 class="section-heading"><span class="section-num">03 —</span> Accounts</h2>
+        <p class="body-text">You must create an account to use OnyxCAD beyond the free tier. You are responsible for:
+        </p>
+        <p class="body-text">— Maintaining the confidentiality of your account credentials.<br>
+            — All activity that occurs under your account.<br>
+            — Ensuring the email address associated with your account is accurate and accessible.</p>
+        <p class="body-text">You must be at least 18 years old to create an account. You may not create an account on
+            behalf of another person without their consent.</p>
+        <p class="body-text">We reserve the right to suspend or terminate accounts that violate these Terms.</p>
+
+        <!-- SECTION 04 -->
+        <h2 class="section-heading"><span class="section-num">04 —</span> Subscriptions and payment</h2>
+        <p class="body-text">OnyxCAD offers the following subscription plans:</p>
+        <p class="body-text">— <strong style="color:var(--text-bright)">Starter (Free):</strong> 3 active projects, no
+            share links.<br>
+            — <strong style="color:var(--text-bright)">Pro:</strong> price as displayed at onyxcad.com/pricing at the
+            time of purchase. Includes up to 10 active projects and share links.<br>
+            — <strong style="color:var(--text-bright)">Growth:</strong> price as displayed at onyxcad.com/pricing at the
+            time of purchase. Includes up to 50 active projects and share links.</p>
+        <p class="body-text">Payments are processed by Polar.sh. By subscribing, you also agree to Polar.sh's terms of
+            service. Subscription fees are charged in advance on a monthly basis.</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Refunds:</strong> We do not offer refunds on
+            subscription payments. When you cancel a subscription, you retain access to paid features until the end of
+            your current billing period, after which your account reverts to the free tier. Your data is not deleted on
+            downgrade.</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Cancellation:</strong> You may cancel your
+            subscription at any time through the billing section of your OnyxCAD account, which links to our payment
+            processor's customer portal. Cancellation takes effect at the end of your current billing period — you will
+            not be charged for any subsequent period. You will retain access to all paid features until the end of the
+            period you have already paid for. Your data is not deleted upon cancellation — your account reverts to the
+            free tier and your projects remain accessible subject to free tier limits.</p>
+        <p class="body-text">We reserve the right to change subscription pricing with 30 days' notice. If you do not
+            cancel before the price change takes effect, your continued use constitutes acceptance of the new price.</p>
+
+        <!-- SECTION 05 -->
+        <h2 class="section-heading"><span class="section-num">05 —</span> Your content</h2>
+        <p class="body-text">You retain full ownership of all STEP files and annotation data you upload or create using
+            OnyxCAD ("Your Content").</p>
+        <p class="body-text">By uploading content to OnyxCAD, you grant us a limited, non-exclusive, royalty-free
+            licence to store, process, and display Your Content solely for the purpose of providing the Service to you.
+        </p>
+        <p class="body-text">We do not claim any intellectual property rights over Your Content. We do not access,
+            analyse, or use the geometric or manufacturing data in your STEP files for any purpose other than rendering
+            them for you.</p>
+        <p class="body-text">You are solely responsible for ensuring you have the right to upload any content you
+            submit. Do not upload files that contain third-party intellectual property you are not licensed to share.
+        </p>
+
+        <!-- SECTION 06 -->
+        <h2 class="section-heading"><span class="section-num">06 —</span> Acceptable use</h2>
+        <p class="body-text">You agree not to use OnyxCAD to:</p>
+        <p class="body-text">— Upload content that infringes the intellectual property rights of any third party.<br>
+            — Attempt to reverse-engineer, scrape, or extract data from the Service beyond normal use.<br>
+            — Use the Service to distribute malware or malicious files.<br>
+            — Attempt to gain unauthorised access to other users' accounts or data.<br>
+            — Use share links to distribute content to parties not authorised to receive it under your own
+            obligations.<br>
+            — Circumvent subscription limits through automated means.<br>
+            — Use the Service in any way that violates applicable law.</p>
+        <p class="body-text">We reserve the right to suspend or terminate accounts that violate these rules without
+            notice or refund.</p>
+
+        <!-- SECTION 07 -->
+        <h2 class="section-heading"><span class="section-num">07 —</span> Share links and third-party access</h2>
+        <p class="body-text">When you generate a share link for a project, that link allows any person with the URL to
+            view the annotated model in a browser without an OnyxCAD account.</p>
+        <p class="body-text">You are solely responsible for:</p>
+        <p class="body-text">— Controlling who you share links with.<br>
+            — Ensuring the content you share does not violate any export control regulations, confidentiality
+            obligations, or third-party rights.<br>
+            — Revoking share links when they are no longer needed.</p>
+        <p class="body-text">OnyxCAD does not verify the identity of anyone accessing a share link. We are not liable
+            for any consequences arising from your decision to share a link with any particular person or organisation.
+        </p>
+        <p class="body-text">When you archive a project, its share link is automatically paused and inaccessible until
+            you restore the project to active status.</p>
+
+        <!-- SECTION 08 -->
+        <h2 class="section-heading"><span class="section-num">08 —</span> Data deletion</h2>
+        <p class="body-text">You may delete individual projects or your entire account at any time from within the
+            OnyxCAD application.</p>
+        <p class="body-text">— Deleting a project permanently deletes the associated STEP file and all annotation data
+            from our servers. This action is irreversible.<br>
+            — Deleting your account permanently deletes all your projects, files, annotations, and account data. This
+            action is irreversible.<br>
+            — Payment records are retained for 7 years as required by UK financial record-keeping law, even after
+            account deletion.</p>
+        <p class="body-text">We are not responsible for any loss arising from your deletion of content.</p>
+
+        <!-- SECTION 09 -->
+        <h2 class="section-heading"><span class="section-num">09 —</span> Disclaimer of warranties</h2>
+        <p class="body-text">OnyxCAD is provided "as is" and "as available" without warranty of any kind, express or
+            implied.</p>
+        <p class="body-text">We do not warrant that:</p>
+        <p class="body-text">— The Service will be uninterrupted, error-free, or available at any particular time.<br>
+            — The Service will meet your specific engineering or manufacturing requirements.<br>
+            — Annotations, tolerances, or other data created using OnyxCAD are suitable for use in manufacturing,
+            certification, or safety-critical applications without independent verification.</p>
+        <p class="body-text">OnyxCAD is a documentation and communication tool. It is not a substitute for professional
+            engineering review. You are solely responsible for verifying the accuracy and appropriateness of any
+            specifications before use in manufacturing.</p>
+
+        <!-- SECTION 10 -->
+        <h2 class="section-heading"><span class="section-num">10 —</span> Limitation of liability</h2>
+        <p class="body-text">To the maximum extent permitted by the laws of England and Wales, OnyxCAD shall not be
+            liable for:</p>
+        <p class="body-text">— Any indirect, incidental, consequential, or special damages arising from your use of the
+            Service.<br>
+            — Any manufacturing defects, production errors, or financial losses arising from reliance on annotations,
+            tolerances, or specifications created using OnyxCAD.<br>
+            — Loss of data resulting from your own deletion actions or from factors outside our reasonable control.<br>
+            — Any losses arising from unauthorised access to your account due to your failure to maintain secure
+            credentials.</p>
+        <p class="body-text">Our total liability to you for any claim arising from use of the Service shall not exceed
+            the total amount you paid to us in the 12 months preceding the claim.</p>
+
+        <!-- SECTION 11 -->
+        <h2 class="section-heading"><span class="section-num">11 —</span> Changes to the service and these terms</h2>
+        <p class="body-text">We reserve the right to modify or discontinue the Service or any feature at any time, with
+            or without notice. We will make reasonable efforts to notify users of significant changes via email or
+            in-app notification.</p>
+        <p class="body-text">We may update these Terms from time to time. Material changes will be notified by email or
+            prominent notice on the site at least 14 days before taking effect. Continued use of the Service after the
+            effective date constitutes acceptance of the updated Terms.</p>
+
+        <!-- SECTION 12 -->
+        <h2 class="section-heading"><span class="section-num">12 —</span> Contact</h2>
+        <p class="body-text">For any questions about these Terms, contact us at:</p>
+        <div class="contact-box">support.onyxcad@gmail.com<br>onyxcad.com</div>
+    </div>
+
+    <!-- ═══ SMALL PRINT ═══════════════════════════════ -->
+    <div class="small-print">
+        These documents were last reviewed in April 2026. OnyxCAD is an independent product. These terms do not
+        constitute legal advice. If you have specific legal concerns about data protection or contract terms, consult a
+        qualified solicitor.
+    </div>
+
+    <!-- ═══ FOOTER ════════════════════════════════════ -->
+    <footer>
+        <div class="footer-left">
+            <span class="footer-logo">Onyx<span class="cad">CAD</span><span class="dot">.</span></span>
+            <span class="footer-tagline">Like PDFs for CAD</span>
+        </div>
+        <div class="footer-links">
+            <a href="/#features">Features</a>
+            <a href="/#pricing">Pricing</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+        </div>
+    </footer>
+
+</body>
+
+</html>

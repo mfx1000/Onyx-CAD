@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — OnyxCAD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #060a10;
+            --surface: #0b1220;
+            --surface2: #101b2e;
+            --blue: #2b7de9;
+            --blue-bright: #4a9af5;
+            --blue-dim: rgba(43, 125, 233, 0.12);
+            --orange: #e07b39;
+            --text: #b8ccd8;
+            --text-dim: #4a6478;
+            --text-bright: #ddeeff;
+            --mono: #6a9cbf;
+            --border: rgba(43, 125, 233, 0.14);
+            --line: rgba(43, 125, 233, 0.18);
+            --grid: rgba(43, 125, 233, 0.055)
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-x: hidden
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 40px 40px
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(rgba(43, 125, 233, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(43, 125, 233, 0.1) 1px, transparent 1px);
+            background-size: 200px 200px
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            color: var(--text-bright)
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace
+        }
+
+        a {
+            color: var(--blue-bright);
+            text-decoration: none
+        }
+
+        ul {
+            list-style: none
+        }
+
+        /* ═══ NAV ═════════════════════════════════ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: rgba(6, 10, 16, 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .nav-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--text-bright)
+        }
+
+        .nav-logo .dot {
+            color: var(--blue)
+        }
+
+        .nav-logo .cad {
+            color: var(--blue)
+        }
+
+        .nav-tagline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding-left: 16px;
+            border-left: 1px solid var(--border);
+            margin-left: 16px
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            transition: color 0.2s
+        }
+
+        .nav-links a:hover {
+            color: var(--text-bright)
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .btn-outline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 8px 20px;
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-outline:hover {
+            border-color: var(--blue);
+            color: var(--blue-bright)
+        }
+
+        .btn-filled {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 8px 20px;
+            background: var(--blue);
+            color: #fff;
+            border: 1px solid var(--blue);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-filled:hover {
+            background: var(--blue-bright)
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            nav {
+                padding: 16px 20px
+            }
+        }
+
+        /* ═══ ZONE LABEL ═════════════════════════ */
+        .zone-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 24px
+        }
+
+        .zone-label::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 1px;
+            background: var(--blue)
+        }
+
+        .zone-tag {
+            border: 1px solid var(--blue);
+            padding: 2px 8px;
+            font-size: 9px;
+            letter-spacing: 0.12em
+        }
+
+        /* ═══ CONTENT ════════════════════════════ */
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            position: relative;
+            z-index: 1
+        }
+
+        .page-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 52px;
+            color: var(--text-bright);
+            margin-bottom: 12px
+        }
+
+        .last-updated {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            margin-bottom: 56px
+        }
+
+        .section-heading {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 600;
+            font-size: 22px;
+            color: var(--text-bright);
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            margin-bottom: 20px
+        }
+
+        .section-num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            color: var(--blue);
+            margin-right: 8px
+        }
+
+        .body-text {
+            font-family: 'Barlow', sans-serif;
+            font-weight: 300;
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.8;
+            margin-bottom: 16px
+        }
+
+        .body-text a {
+            color: var(--blue-bright);
+            text-decoration: none
+        }
+
+        .body-text a:hover {
+            text-decoration: underline
+        }
+
+        .contact-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            margin: 24px 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--mono)
+        }
+
+        .small-print {
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 40px 0;
+            position: relative;
+            z-index: 1;
+            line-height: 1.7
+        }
+
+        /* ═══ FOOTER ══════════════════════════════ */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            z-index: 1
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 16px
+        }
+
+        .footer-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-bright)
+        }
+
+        .footer-logo .dot {
+            color: var(--blue)
+        }
+
+        .footer-logo .cad {
+            color: var(--blue)
+        }
+
+        .footer-tagline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding-left: 20px;
+            border-left: 1px solid var(--border)
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            transition: color 0.2s
+        }
+
+        .footer-links a:hover {
+            color: var(--blue-bright)
+        }
+
+        @media(max-width:768px) {
+            footer {
+                flex-direction: column;
+                text-align: center
+            }
+
+            .content {
+                padding: 48px 20px
+            }
+
+            .page-title {
+                font-size: 36px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ NAV ════════════════════════════════════════ -->
+    <nav>
+        <div style="display:flex;align-items:center">
+            <a href="/" class="nav-logo">Onyx<span class="cad">CAD</span><span class="dot">.</span></a>
+            <span class="nav-tagline">like PDFs for CAD</span>
+        </div>
+        <div class="nav-links">
+            <a href="/#features">Features</a>
+            <a href="/#how">How it works</a>
+            <a href="/#pricing">Pricing</a>
+        </div>
+        <div class="nav-right">
+            <a href="/login" class="btn-outline">Log in</a>
+            <a href="/login" class="btn-filled">Get started →</a>
+        </div>
+    </nav>
+
+    <!-- ═══ CONTENT ═══════════════════════════════════ -->
+    <div class="content">
+        <div class="zone-label"><span class="zone-tag">LEGAL</span> Privacy Policy</div>
+        <h1 class="page-title">Privacy Policy</h1>
+        <div class="last-updated">LAST UPDATED: APRIL 2026</div>
+
+        <!-- SECTION 01 -->
+        <h2 class="section-heading"><span class="section-num">01 —</span> Who we are</h2>
+        <p class="body-text">OnyxCAD ("we", "us", "our") is operated as an independent software product accessible at
+            onyxcad.com. We provide a browser-based STEP file annotation and sharing tool for engineers and
+            manufacturers.</p>
+        <p class="body-text">This Privacy Policy explains what personal data we collect, how we use it, and your rights
+            under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.</p>
+        <p class="body-text">If you have any questions about this policy, contact us at:</p>
+        <div class="contact-box">support.onyxcad@gmail.com</div>
+
+        <!-- SECTION 02 -->
+        <h2 class="section-heading"><span class="section-num">02 —</span> What data we collect</h2>
+        <p class="body-text">We collect the following categories of personal data:</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Account data:</strong> When you create an account,
+            we collect your email address and, if you use Google Sign-In, your name and Google profile picture as
+            provided by Google's OAuth service. We do not store your Google password.</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Uploaded file data:</strong> STEP files you upload
+            are stored on our servers for the purpose of providing the service. Files are associated with your account
+            and are permanently deleted when you delete the project or close your account. We do not access, read, or
+            analyse the contents of your STEP files beyond what is required to render and process them for you.</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Annotation data:</strong> Tolerances, thread
+            specifications, colours, and other annotations you create are stored in our database, associated with your
+            account and your uploaded files.</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Share link data:</strong> When you generate a
+            share link, we store the link token and the association between that token and your project. Anyone with the
+            link can view the associated model. We log basic access events (timestamp, IP address) when share links are
+            accessed for security purposes.</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Usage and technical data:</strong> We may collect
+            standard technical data including your IP address, browser type, device type, and pages visited. This data
+            is used for security, debugging, and service improvement. If we use a third-party analytics service, it will
+            be a standard provider operating under a data processing agreement with us. We do not sell this data or use
+            it for advertising.</p>
+        <p class="body-text"><strong style="color:var(--text-bright)">Payment data:</strong> Payments are processed by
+            Polar.sh, our payment processor. We do not store your card details. Polar.sh handles all payment data under
+            their own privacy policy. We receive confirmation of subscription status from Polar.sh but no raw payment
+            card information.</p>
+
+        <!-- SECTION 03 -->
+        <h2 class="section-heading"><span class="section-num">03 —</span> How we use your data</h2>
+        <p class="body-text">We use the data we collect for the following purposes:</p>
+        <p class="body-text">— To provide and operate the OnyxCAD service, including storing your files, annotations,
+            and projects.<br>
+            — To manage your account and authenticate your identity.<br>
+            — To process subscription payments via Polar.sh.<br>
+            — To send transactional emails such as account confirmation and payment receipts. We do not send marketing
+            emails without your explicit consent.<br>
+            — To respond to support requests sent to our support email.<br>
+            — To maintain the security and integrity of the service.<br>
+            — To improve the service based on aggregated usage patterns.</p>
+        <p class="body-text">Our lawful basis for processing under UK GDPR is:</p>
+        <p class="body-text">— <strong style="color:var(--text-bright)">Contract performance:</strong> processing your
+            files and annotations to deliver the service you signed up for.<br>
+            — <strong style="color:var(--text-bright)">Legitimate interests:</strong> security logging, abuse
+            prevention, and service improvement.<br>
+            — <strong style="color:var(--text-bright)">Legal obligation:</strong> where required by UK law.</p>
+
+        <!-- SECTION 04 -->
+        <h2 class="section-heading"><span class="section-num">04 —</span> Data storage and retention</h2>
+        <p class="body-text">Your data is stored on servers provided by Supabase, Inc., a cloud infrastructure provider
+            operating data centres in the European Union. Supabase processes data under a Data Processing Agreement
+            compliant with UK GDPR requirements for international transfers.</p>
+        <p class="body-text">We retain your data for as long as your account is active. Specifically:</p>
+        <p class="body-text">— <strong style="color:var(--text-bright)">STEP files:</strong> permanently deleted when
+            you delete the associated project, or when you close your account.<br>
+            — <strong style="color:var(--text-bright)">Annotation data:</strong> permanently deleted when you delete the
+            associated project or close your account.<br>
+            — <strong style="color:var(--text-bright)">Account data</strong> (email, name): retained until you request
+            account deletion.<br>
+            — <strong style="color:var(--text-bright)">Payment records:</strong> retained for 7 years as required by UK
+            financial record-keeping obligations.<br>
+            — <strong style="color:var(--text-bright)">Security logs:</strong> retained for 90 days, then deleted.</p>
+
+        <!-- SECTION 05 -->
+        <h2 class="section-heading"><span class="section-num">05 —</span> Sharing your data with third parties</h2>
+        <p class="body-text">We do not sell your personal data. We share data only with the following third parties,
+            strictly for the purpose of operating the service:</p>
+        <p class="body-text">— <strong style="color:var(--text-bright)">Supabase, Inc.:</strong> database, file storage,
+            and authentication infrastructure.<br>
+            — <strong style="color:var(--text-bright)">Polar.sh:</strong> subscription and payment processing.<br>
+            — <strong style="color:var(--text-bright)">Google LLC:</strong> authentication via Google OAuth, if you
+            choose to sign in with Google.<br>
+            — <strong style="color:var(--text-bright)">Analytics provider:</strong> if we introduce a third-party
+            analytics service, it will be listed here. We will only use providers that offer UK GDPR-compliant data
+            processing agreements and do not use your data for advertising.</p>
+        <p class="body-text">We do not share your STEP files or annotation data with any third party other than the
+            infrastructure providers listed above, who process it only on our behalf.</p>
+
+        <!-- SECTION 06 -->
+        <h2 class="section-heading"><span class="section-num">06 —</span> Your rights under UK GDPR</h2>
+        <p class="body-text">You have the following rights regarding your personal data:</p>
+        <p class="body-text">— <strong style="color:var(--text-bright)">Right of access:</strong> request a copy of the
+            personal data we hold about you.<br>
+            — <strong style="color:var(--text-bright)">Right to rectification:</strong> request correction of inaccurate
+            data.<br>
+            — <strong style="color:var(--text-bright)">Right to erasure:</strong> request deletion of your personal
+            data. You can delete your projects and account directly in the app, which permanently deletes associated
+            files and annotations.<br>
+            — <strong style="color:var(--text-bright)">Right to data portability:</strong> request your annotation data
+            in a machine-readable format.<br>
+            — <strong style="color:var(--text-bright)">Right to object:</strong> object to processing based on
+            legitimate interests.<br>
+            — <strong style="color:var(--text-bright)">Right to restrict processing:</strong> request that we limit how
+            we use your data in certain circumstances.</p>
+        <p class="body-text">To exercise any of these rights, contact us at:</p>
+        <div class="contact-box">support.onyxcad@gmail.com</div>
+        <p class="body-text">We will respond within 30 days. If you are unsatisfied with our response, you have the
+            right to lodge a complaint with the Information Commissioner's Office (ICO) at <a href="https://ico.org.uk"
+                target="_blank">ico.org.uk</a>.</p>
+
+        <!-- SECTION 07 -->
+        <h2 class="section-heading"><span class="section-num">07 —</span> Cookies</h2>
+        <p class="body-text">We use only essential cookies required to operate the service, specifically:</p>
+        <p class="body-text">— <strong style="color:var(--text-bright)">Authentication session cookies:</strong> to keep
+            you logged in during a browser session.<br>
+            — <strong style="color:var(--text-bright)">Security cookies:</strong> to protect against cross-site request
+            forgery (CSRF).</p>
+        <p class="body-text">We do not use advertising cookies, tracking cookies, or third-party cookies for profiling
+            purposes. If we introduce any non-essential cookies in future, we will update this policy and obtain your
+            consent where required.</p>
+
+        <!-- SECTION 08 -->
+        <h2 class="section-heading"><span class="section-num">08 —</span> Children's privacy</h2>
+        <p class="body-text">OnyxCAD is intended for professional use by adults. We do not knowingly collect personal
+            data from anyone under the age of 18. If you believe a minor has created an account, please contact us at <a
+                href="mailto:support.onyxcad@gmail.com">support.onyxcad@gmail.com</a> and we will delete the account
+            promptly.</p>
+
+        <!-- SECTION 09 -->
+        <h2 class="section-heading"><span class="section-num">09 —</span> Changes to this policy</h2>
+        <p class="body-text">We may update this Privacy Policy from time to time. If we make material changes, we will
+            notify you by email or by displaying a prominent notice on the site before the changes take effect. The
+            "last updated" date at the top of this page will always reflect the most recent version.</p>
+        <p class="body-text">Continued use of OnyxCAD after changes are posted constitutes acceptance of the updated
+            policy.</p>
+
+        <!-- SECTION 10 -->
+        <h2 class="section-heading"><span class="section-num">10 —</span> Contact</h2>
+        <p class="body-text">For any privacy-related questions, data requests, or complaints, contact us at:</p>
+        <div class="contact-box">support.onyxcad@gmail.com<br>onyxcad.com</div>
+    </div>
+
+    <!-- ═══ SMALL PRINT ═══════════════════════════════ -->
+    <div class="small-print">
+        These documents were last reviewed in April 2026. OnyxCAD is an independent product. These terms do not
+        constitute legal advice. If you have specific legal concerns about data protection or contract terms, consult a
+        qualified solicitor.
+    </div>
+
+    <!-- ═══ FOOTER ════════════════════════════════════ -->
+    <footer>
+        <div class="footer-left">
+            <span class="footer-logo">Onyx<span class="cad">CAD</span><span class="dot">.</span></span>
+            <span class="footer-tagline">Like PDFs for CAD</span>
+        </div>
+        <div class="footer-links">
+            <a href="/#features">Features</a>
+            <a href="/#pricing">Pricing</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+        </div>
+    </footer>
+
+</body>
+
+</html>

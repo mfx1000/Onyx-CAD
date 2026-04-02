@@ -1,0 +1,33 @@
+# Core Flask
+flask==3.1.2
+werkzeug==3.1.5
+gunicorn==20.1.0
+
+# CAD Processing
+cadquery==2.6.1
+cadquery-ocp==7.8.1.1.post1
+
+# Required dependencies
+numpy==2.4.2
+ezdxf==1.4.3
+nlopt==2.10.0
+casadi==3.7.2
+multimethod==1.12
+typish==1.9.3
+
+# Flask dependencies
+click==8.3.1
+blinker==1.9.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+
+# Supabase Storage (file uploads only)
+supabase==2.15.1
+python-dotenv==1.1.0
+
+# Firebase Auth + Firestore
+firebase-admin==6.7.0
+
+# Billing
+requests==2.32.3

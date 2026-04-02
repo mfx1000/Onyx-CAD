@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OnyxCAD - CAD Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <script type="text/javascript">
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "vdulu0u1jb");
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_expansion.css') }}" />
+    <style>
+        .scribe-brand {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0em;
+            font-size: 20px;
+            color: #ddeeff;
+        }
+        .scribe-brand .cad { color: #2b7de9; }
+
+        .scribe-subtitle {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 400;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-left: 10px;
+            font-style: italic;
+        }
+
+        .view-btn {
+            background: #374151;
+            border: 1px solid #4b5563;
+            color: #d1d5db;
+            padding: 6px 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .view-btn:hover {
+            background: #4b5563;
+            border-color: #60a5fa;
+            color: #fff;
+        }
+
+        .view-btn:active {
+            background: #60a5fa;
+            color: #111827;
+        }
+
+        .thread-group {
+            background: #f1f5f9;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .thread-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #f1f5f9;
+            transition: background 0.15s;
+        }
+
+        .thread-group-header:hover {
+            background: #e2e8f0;
+        }
+
+        .thread-group-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .thread-group-count {
+            font-size: 10px;
+            color: #64748b;
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .thread-group-content {
+            padding: 0 10px 8px 10px;
+            display: none;
+        }
+
+        .thread-group.expanded .thread-group-content {
+            display: block;
+        }
+
+        .thread-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        /* Floating View Buttons in Viewport */
+        #view-buttons {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            z-index: 100;
+            opacity: 0.45;
+            transition: opacity 0.3s ease;
+        }
+
+        #view-buttons:hover {
+            opacity: 0.95;
+        }
+
+        #view-buttons .view-btn {
+            width: 28px;
+            height: 24px;
+            padding: 0;
+            font-size: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Mobile block screen */
+        .mobile-block {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #060a10;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 32px;
+        }
+        .mobile-block-icon {
+            width: 64px;
+            height: 64px;
+            border: 2px solid rgba(43, 125, 233, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+            color: #4a9af5;
+        }
+        .mobile-block h2 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: #ddeeff;
+            margin-bottom: 12px;
+        }
+        .mobile-block p {
+            font-family: 'Barlow', sans-serif;
+            font-size: 15px;
+            color: #4a6478;
+            line-height: 1.6;
+            max-width: 320px;
+            margin-bottom: 32px;
+        }
+        .mobile-block a {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            padding: 12px 28px;
+            background: #2b7de9;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .mobile-block a:hover {
+            background: #4a9af5;
+        }
+
+        @media(max-width:768px) {
+            #toolbar, #sidebar, #viewer-container, #read-only-banner { display: none !important; }
+            .mobile-block { display: flex; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile block screen -->
+    <div class="mobile-block">
+        <div class="mobile-block-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+        </div>
+        <h2>Desktop Required</h2>
+        <p>OnyxCAD's 3D viewer is designed for larger screens. Please open this page on a desktop or laptop computer.</p>
+        <a href="/">Back to home</a>
+    </div>
+    <!-- Top Toolbar -->
+    <header id="toolbar">
+        <div class="tb-left">
+            <a href="/dashboard" style="text-decoration:none;display:flex;align-items:center;gap:12px;">
+                <svg onclick="goToDashboard()" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer;color:#b8ccd8;">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span class="scribe-brand">Onyx<span class="cad">CAD</span></span>
+            </a>
+        </div>
+        <div class="tb-center">
+            <!-- Toggle icon buttons like Fusion 360 -->
+            <button class="tb-icon active" id="tb-light" title="Cycle Lighting">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                    <circle cx="8" cy="8" r="4" stroke="currentColor" stroke-width="1.5" fill="none" />
+                    <line x1="8" y1="1" x2="8" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="8" y1="13" x2="8" y2="15" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" />
+                    <line x1="1" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="13" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" />
+                </svg>
+                <span>Light</span>
+            </button>
+            <button class="tb-icon active" id="tb-edges" title="Toggle Edges">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                    <rect x="2" y="4" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.5"
+                        fill="none" />
+                    <line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1" opacity=".5" />
+                </svg>
+                <span>Edges</span>
+            </button>
+            <div class="tb-sep"></div>
+            <button class="tb-icon" id="tb-fit" title="Fit to View">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                    <path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4" stroke="currentColor" stroke-width="1.5"
+                        fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Fit</span>
+            </button>
+
+
+        </div>
+        <div class="tb-right">
+            <span id="model-uuid" class="tb-uuid"></span>
+            <!-- User email - just display, no menu -->
+            <span id="user-email" style="background:#0b1220; border:1px solid rgba(43,125,233,0.14); color:#b8ccd8; padding:6px 12px; font-size:10px; font-family:'IBM Plex Mono', monospace; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">...</span>
+        </div>
+    </header>
+
+    <!-- Read-Only Banner (shown for shared links) -->
+    <div id="read-only-banner" class="hidden"
+        style="position:fixed; top:36px; left:0; right:0; z-index:99; background:#fbbf24; color:#78350f; text-align:center; padding:6px 16px; font-size:13px; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+        <svg style="vertical-align:middle; margin-right:6px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Viewing shared model — read only
+    </div>
+
+    <!-- Left Sidebar -->
+    <aside id="sidebar">
+        <div class="panel-header">
+            <button id="sidebar-pin" class="panel-pin" title="Collapse panel">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6" />
+                </svg>
+            </button>
+        </div>
+        <div class="section">
+            <h2>Import</h2>
+            <div id="drop-zone" class="drop-zone">
+                <div class="drop-zone-content">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span id="upload-label">Drag & drop STEP file<br />or click to browse</span>
+                </div>
+                <input type="file" id="file-input" accept=".step,.stp" />
+            </div>
+        </div>
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <span>Processing...</span>
+        </div>
+
+        <div id="export-section" class="section hidden">
+            <h2>Export</h2>
+            <button id="export-btn">Export</button>
+        </div>
+
+        <div id="save-section" class="section hidden">
+            <button id="save-btn" style="background:#10b981; width:100%; position:relative;">
+                <span id="save-btn-text">💾 Save Annotations</span>
+                <span id="unsaved-dot" class="hidden" style="position:absolute; top:6px; right:8px; width:8px; height:8px; background:#f59e0b; border-radius:50%; animation:pulse 1.5s infinite;"></span>
+            </button>
+        </div>
+
+        <div id="share-section" class="section hidden">
+            <h2>Share</h2>
+            <button id="share-btn" style="background:#8b5cf6; width:100%;">Share Link</button>
+            <div id="share-url-container" class="hidden" style="margin-top:6px;">
+                <input id="share-url-input" type="text" readonly
+                    style="width:100%; padding:5px 6px; border:1px solid var(--border); border-radius:4px; font-size:11px; font-family:monospace; box-sizing:border-box; background:#f8fafc;" />
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                    <button id="share-copy-btn" style="flex:1; background:#3b82f6; font-size:11px; padding:4px;">Copy</button>
+                    <button id="share-revoke-btn" style="flex:1; background:#ef4444; font-size:11px; padding:4px;">Revoke</button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Console log fills bottom of sidebar -->
+        <div id="console-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h2 style="margin:0;">Console</h2>
+                <div style="display:flex; gap:4px;">
+                    <button class="view-btn admin-action" data-scope="db" title="Clear Database Metadata"
+                        style="padding:2px 6px; font-size:9px; background:#ef4444; border-color:#b91c1c;">DB</button>
+                    <button class="view-btn admin-action" data-scope="file" title="Strip File Metadata"
+                        style="padding:2px 6px; font-size:9px; background:#f59e0b; border-color:#d97706;">File</button>
+                    <button class="view-btn admin-action" data-scope="all" title="Nuke Both"
+                        style="padding:2px 6px; font-size:9px; background:#000; border-color:#333;">All</button>
+                </div>
+            </div>
+            <div id="console-log"></div>
+        </div>
+    </aside>
+
+    <!-- 3-D canvas -->
+    <main id="viewer-container">
+        <div id="gizmo-container"></div>
+
+        <!-- Quick View Buttons (floating in viewport) -->
+        <div id="view-buttons">
+            <button class="view-btn" data-view="front" title="Front">F</button>
+            <button class="view-btn" data-view="back" title="Back">B</button>
+            <button class="view-btn" data-view="left" title="Left">L</button>
+            <button class="view-btn" data-view="right" title="Right">R</button>
+            <button class="view-btn" data-view="top" title="Top">T</button>
+            <button class="view-btn" data-view="bottom" title="Bottom">Bo</button>
+            <button class="view-btn" data-view="iso" title="Isometric">Iso</button>
+        </div>
+
+
+        <!-- Lighting Modal (existing) -->
+        <div id="lighting-modal" class="hidden">
+            <div class="modal-header">
+                <h3>Lighting Settings</h3>
+                <button id="close-lighting">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="control-group">
+                    <label>Preset</label>
+                    <select id="light-preset">
+                        <option value="0">Standard (3-Point)</option>
+                        <option value="1">Flat (Even)</option>
+                        <option value="2">Dramatic (High Contrast)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Ambient Intensity</label>
+                    <input type="range" id="light-ambient" min="0" max="2" step="0.05" value="0.4">
+                </div>
+
+                <div class="control-group">
+                    <label>Key Light (Main)</label>
+                    <input type="range" id="light-key" min="0" max="3" step="0.1" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <label>Fill Light (Soft)</label>
+                    <input type="range" id="light-fill" min="0" max="2" step="0.05" value="0.5">
+                </div>
+
+                <div class="control-group">
+                    <label>Back Light (Rim)</label>
+                    <input type="range" id="light-back" min="0" max="2" step="0.05" value="0.5">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel Container -->
+        <div id="right-panel-container">
+            <!-- Vertical Tabs -->
+            <div id="rp-tabs">
+                <button class="rp-tab active" data-view="props" title="Face Properties">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                    </svg>
+                    <span>Props</span>
+                </button>
+                <button class="rp-tab" data-view="holes" title="Hole Wizard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Holes</span>
+                </button>
+                <button class="rp-tab" data-view="heatmap" title="Tolerances">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z">
+                        </path>
+                        <line x1="12" y1="22" x2="12" y2="22"></line>
+                    </svg>
+                    <span>Tols</span>
+                </button>
+            </div>
+
+            <!-- Right Panel Content -->
+            <aside id="right-panel" class="hidden">
+                <div class="rp-header">
+                    <span id="rp-title">PROPERTIES</span>
+                    <button id="rp-close" class="icon-btn" title="Close Panel">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Scrollable Content Wrapper -->
+                <div id="rp-content" style="flex: 1; overflow-y: auto;">
+
+                    <!-- Default View: Face Properties -->
+                    <div id="rp-default-view">
+                        <div class="rp-section">
+                            <div class="rp-row">
+                                <span class="rp-label">Face ID</span>
+                                <span class="rp-value" id="rp-face-id">--</span>
+                            </div>
+                            <div class="rp-row">
+                                <span class="rp-label">Type</span>
+                                <span class="rp-value" id="rp-face-type">Planar</span>
+                            </div>
+                            <div class="rp-row">
+                                <span class="rp-label">Area</span>
+                                <span class="rp-value" id="rp-face-area">--</span>
+                            </div>
+                        </div>
+
+                        <div class="rp-section">
+                            <h3>Appearance</h3>
+                            <label for="color-picker" class="rp-label">Surface Color</label>
+                            <input type="color" id="color-picker" value="#90a4ae" />
+                            <button id="reset-color-btn">Reset to Default</button>
+                        </div>
+
+                        <div class="rp-section">
+                            <h3>Threading</h3>
+                            <label class="rp-label">Thread Type</label>
+                            <div class="combobox" id="cb-thread-type">
+                                <input type="text" placeholder="None" autocomplete="off" />
+                                <div class="combobox-list"></div>
+                            </div>
+                            <label class="rp-label">Thread Size</label>
+                            <div class="combobox" id="cb-thread-size">
+                                <input type="text" placeholder="--" autocomplete="off" />
+                                <div class="combobox-list"></div>
+                            </div>
+                            <label class="rp-label">Thread Class</label>
+                            <div class="combobox" id="cb-thread-class">
+                                <input type="text" placeholder="None" autocomplete="off" />
+                                <div class="combobox-list"></div>
+                            </div>
+                        </div>
+
+                        <div class="rp-section">
+                            <h3>Tolerancing</h3>
+                            <label class="rp-label">Tolerance Type</label>
+                            <div class="combobox" id="cb-tol-type">
+                                <input type="text" placeholder="None" autocomplete="off" />
+                                <div class="combobox-list"></div>
+                            </div>
+                            <label class="rp-label">Value / Class</label>
+                            <div class="combobox" id="cb-tol-value">
+                                <input type="text" placeholder="--" autocomplete="off" />
+                                <div class="combobox-list"></div>
+                            </div>
+                            <label class="rp-label">Datum Ref</label>
+                            <input type="text" id="inp-datum" class="rp-input" placeholder="e.g. A|B|C" />
+                        </div>
+
+
+                    </div> <!-- End rp-default-view -->
+
+                    <hr class="rp-divider">
+
+                    <!-- Expanded Content: Heat Map Settings -->
+                    <div id="heatmap-section" class="hidden">
+                        <h3>TOLERANCES</h3>
+
+                        <!-- Tolerance Type Filters -->
+                        <div class="rp-section">
+                            <h4 style="margin:0 0 6px 0; font-size:11px; color:#9ca3af;">Show Types</h4>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:11px;">
+                                <label style="display:flex; align-items:center; gap:4px; color:#d1d5db;"><input
+                                        type="checkbox" id="hm-show-linear" checked style="width:12px; height:12px;">
+                                    Linear
+                                    ±</label>
+                                <label style="display:flex; align-items:center; gap:4px; color:#d1d5db;"><input
+                                        type="checkbox" id="hm-show-limit" checked style="width:12px; height:12px;">
+                                    Limit</label>
+                                <label style="display:flex; align-items:center; gap:4px; color:#d1d5db;"><input
+                                        type="checkbox" id="hm-show-gdt" checked style="width:12px; height:12px;">
+                                    GD&T</label>
+                                <label style="display:flex; align-items:center; gap:4px; color:#d1d5db;"><input
+                                        type="checkbox" id="hm-show-fits" checked style="width:12px; height:12px;">
+                                    Fits</label>
+                            </div>
+                        </div>
+
+                        <!-- Heat Map Groups (Color Coded) -->
+                        <div id="heatmap-groups" class="rp-section"
+                            style="border-top:1px solid #374151; padding-top:10px;"></div>
+
+
+                    </div>
+
+                    <!-- Expanded Content: Hole Manager -->
+                    <div id="hole-manager-section" class="hidden">
+
+                        <!-- Thread Groups -->
+                        <div class="rp-section">
+                            <h4 style="margin:0 0 6px 0; font-size:11px; color:#9ca3af;">Thread Types</h4>
+                            <div id="thread-groups">
+                                <!-- Populated by JS - thread types with expandable groups and color pickers -->
+                                <div class="thread-group-placeholder"
+                                    style="color:#6b7280; font-size:11px; font-style:italic;">
+                                    Load a model to see threads...
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div> <!-- End rp-content -->
+            </aside>
+        </div> <!-- End right-panel-container -->
+
+        <!-- Upgrade Modal -->
+        <div id="upgrade-modal" class="hidden" style="position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);">
+            <div style="background:#fff; border-radius:12px; padding:32px; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center;">
+                <div style="font-size:32px; margin-bottom:12px;">&#11088;</div>
+                <h2 style="font-size:20px; font-weight:700; color:#1e293b; margin:0 0 8px 0;">Upgrade Required</h2>
+                <p id="upgrade-message" style="font-size:14px; color:#64748b; margin:0 0 24px 0; line-height:1.5;">
+                    This feature requires a paid plan.
+                </p>
+                <div style="display:flex; gap:8px; justify-content:center;">
+                    <button id="upgrade-pro-btn" style="padding:10px 24px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
+                        Pro $79/mo
+                    </button>
+                    <button id="upgrade-growth-btn" style="padding:10px 24px; background:#2563eb; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
+                        Growth $199/mo
+                    </button>
+                </div>
+                <button id="upgrade-cancel-btn" style="margin-top:16px; padding:8px 16px; background:none; color:#94a3b8; border:none; font-size:13px; cursor:pointer;">
+                    Maybe later
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Panel -->
+        <div id="dashboard-panel" class="hidden" style="position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);">
+            <div style="background:#0f172a; border:1px solid #374151; width:560px; max-width:90vw; max-height:70vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #374151;">
+                    <span style="font-size:13px; font-weight:700; color:#e2e8f0; text-transform:uppercase; letter-spacing:0.1em; font-family:'IBM Plex Mono', monospace;">My Models</span>
+                    <button onclick="closeDashboard()" style="background:none; border:none; color:#64748b; font-size:18px; cursor:pointer;">&times;</button>
+                </div>
+                <div id="dashboard-model-list" style="flex:1; overflow-y:auto; padding:16px 20px;">
+                    <div style="color:#64748b; font-size:11px; font-style:italic;">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Panel -->
+        <div id="billing-panel" class="hidden" style="position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);">
+            <div style="background:#0f172a; border:1px solid #374151; width:400px; max-width:90vw; padding:32px; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <span style="font-size:13px; font-weight:700; color:#e2e8f0; text-transform:uppercase; letter-spacing:0.1em; font-family:'IBM Plex Mono', monospace;">Billing</span>
+                    <button onclick="closeBilling()" style="background:none; border:none; color:#64748b; font-size:18px; cursor:pointer;">&times;</button>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:10px; color:#64748b; font-family:'IBM Plex Mono', monospace; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:4px;">Plan</div>
+                    <div id="billing-plan" style="font-size:24px; font-weight:700; color:#e2e8f0;">FREE</div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div id="billing-usage" style="font-size:11px; color:#94a3b8; font-family:'IBM Plex Mono', monospace; margin-bottom:6px;">0 / 3 active projects</div>
+                    <div style="background:#1e293b; height:6px; border:1px solid #374151;">
+                        <div id="billing-bar-fill" style="background:#2563eb; height:100%; width:0%; transition:width 0.3s;"></div>
+                    </div>
+                </div>
+                <div id="billing-upgrade" class="hidden" style="margin-top:20px; text-align:center;">
+                    <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Upgrade for share links and more active projects</div>
+                    <button onclick="startCheckout('pro')" style="background:#2563eb; color:#fff; border:1px solid #2563eb; padding:10px 24px; font-size:11px; font-family:'IBM Plex Mono', monospace; cursor:pointer; letter-spacing:0.08em; text-transform:uppercase;">Upgrade — $79/month</button>
+                </div>
+            </div>
+        </div>
+
+        <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+        <script type="application/json" id="app-config">
+            {
+                "boot_test": {{ boot_test | tojson }},
+                "read_only": {{ read_only | tojson }},
+                "share_token": "{{ share_token }}",
+                "version": {{ version | tojson }},
+                "firebase_api_key": "{{ firebase_api_key }}",
+                "firebase_auth_domain": "{{ firebase_auth_domain }}",
+                "firebase_project_id": "{{ firebase_project_id }}",
+                "model_uuid": "{{ model_uuid | default('') }}"
+            }
+        </script>
+        <script>
+            const cfg = JSON.parse(document.getElementById('app-config').textContent);
+            window.ENABLE_BOOT_TEST = cfg.boot_test;
+            window.READ_ONLY_MODE = cfg.read_only;
+            window.SHARE_TOKEN = cfg.share_token;
+            window.APP_VERSION = cfg.version;
+            window.FIREBASE_API_KEY = cfg.firebase_api_key;
+            window.FIREBASE_AUTH_DOMAIN = cfg.firebase_auth_domain;
+            window.FIREBASE_PROJECT_ID = cfg.firebase_project_id;
+            window.MODEL_UUID = cfg.model_uuid;
+        </script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+        <script>
+            if (window.FIREBASE_API_KEY) {
+                firebase.initializeApp({
+                    apiKey: window.FIREBASE_API_KEY,
+                    authDomain: window.FIREBASE_AUTH_DOMAIN,
+                    projectId: window.FIREBASE_PROJECT_ID,
+                });
+            }
+        </script>
+        <script type="module" src="{{ url_for('static', filename='js/viewer.js') }}"></script>
+</body>
+
+</html>

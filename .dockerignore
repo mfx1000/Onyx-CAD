@@ -1,0 +1,41 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.gemini/
+
+# Git
+.git/
+.gitignore
+
+# Local files
+*.log
+*.db
+*.sqlite
+uploads/*
+!uploads/.gitkeep
+
+# Dev / test artifacts
+tests/__pycache__/
+.pytest_cache/
+temp/
+server_logs.txt
+
+# Environment
+.env
+firebase-credentials.json
+
+# OS
+.DS_Store
+Thumbs.db

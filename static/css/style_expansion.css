@@ -1,0 +1,97 @@
+/* Right Panel Expansion */
+#right-panel {
+    transition: width 0.3s ease;
+    overflow: hidden;
+    /* Hide overflow when collapsed */
+    display: flex;
+    flex-direction: column;
+}
+
+#right-panel.expanded {
+    width: 400px;
+    /* Expanded Width */
+}
+
+#rp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#rp-header h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #ffd700;
+}
+
+#rp-expand-btn {
+    background: transparent;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 5px;
+}
+
+#rp-expand-btn:hover {
+    color: #fff;
+}
+
+/* Hole Manager Section in Expanded Panel */
+#hole-manager-section {
+    margin-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+#hole-manager-section.hidden {
+    display: none;
+}
+
+#hole-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hole-group {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.hole-group:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.hole-group.selected {
+    border: 1px solid #1DA1F2;
+    background: rgba(29, 161, 242, 0.1);
+}
+
+.hole-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.hole-count {
+    color: #888;
+    font-size: 11px;
+}
+
+/* Heat Map Toggle Active State */
+#tb-heatmap.active {
+    color: #ff4444;
+    /* Distinct active color */
+    text-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
+}

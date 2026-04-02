@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — OnyxCAD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg: #060a10;
+            --surface: #0b1220;
+            --surface2: #101b2e;
+            --surface-hover: #18273f;
+            --blue: #2b7de9;
+            --blue-bright: #4a9af5;
+            --blue-dim: rgba(43, 125, 233, 0.12);
+            --blue-glow: rgba(43, 125, 233, 0.3);
+            --orange: #e07b39;
+            --text: #c8dceb;
+            --text-dim: #6c8b9f;
+            --text-bright: #ffffff;
+            --mono: #6a9cbf;
+            --border: rgba(43, 125, 233, 0.2);
+            --border-light: rgba(255, 255, 255, 0.08);
+            --grid: rgba(43, 125, 233, 0.055);
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; 
+            font-weight: 400; line-height: 1.6; height: 100vh; overflow: hidden; 
+        }
+        
+        h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: var(--text-bright); }
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+        a { color: var(--blue-bright); text-decoration: none; }
+        ul { list-style: none; }
+        
+        /* Layout */
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .nav-logo {
+            font-family: 'Barlow Condensed', sans-serif; 
+            font-weight: 800; font-size: 26px; color: var(--text-bright); 
+            cursor: pointer; letter-spacing: 0.5px;
+        }
+        .nav-logo .cad { color: var(--blue); }
+        .nav-tagline {
+            font-family: 'IBM Plex Mono', monospace; font-size: 11px; 
+            color: var(--text-dim); margin-top: 4px; display: block;
+        }
+        
+        .sidebar-user {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-light);
+            position: relative;
+        }
+        .nav-user-btn {
+            font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+            width: 100%; padding: 12px; background: rgba(255,255,255,0.03); 
+            color: var(--text-bright); border: 1px solid var(--border-light); 
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; 
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-user-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--blue); }
+        .user-left { display: flex; align-items: center; gap: 8px; }
+        .user-left svg { width: 14px; height: 14px; color: var(--blue-bright); }
+        
+        .nav-user-dropdown {
+            position: absolute; top: calc(100% + 4px); left: 24px; right: 24px;
+            background: var(--surface2); border: 1px solid var(--border); 
+            border-radius: 6px; display: none; z-index: 200;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .nav-user-dropdown.show { display: block; }
+        .nav-user-dropdown button {
+            width: 100%; text-align: left; background: none; border: none; 
+            color: var(--text); padding: 12px 16px; font-size: 12px; 
+            font-family: 'IBM Plex Mono', monospace; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-user-dropdown button:hover { background: var(--blue-dim); color: var(--text-bright); }
+        .nav-user-dropdown button.danger:hover { background: rgba(224,123,57,0.15); color: var(--orange); }
+
+        .sidebar-nav {
+            flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 8px;
+        }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; 
+            color: var(--text-dim); font-size: 14px; font-weight: 500; 
+            border-radius: 6px; transition: all 0.2s; cursor: pointer;
+        }
+        .sidebar-link svg { width: 18px; height: 18px; }
+        .sidebar-link:hover { background: rgba(255,255,255,0.03); color: var(--text-bright); }
+        .sidebar-link.active { background: var(--blue-dim); color: var(--blue-bright); border-left: 3px solid var(--blue); padding-left: 13px; }
+
+        .sidebar-billing {
+            padding: 24px; margin-top: auto;
+        }
+        .billing-card {
+            background: linear-gradient(135deg, var(--surface2) 0%, rgba(43,125,233,0.1) 100%);
+            border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: relative; overflow: hidden;
+        }
+        .billing-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blue-bright), transparent); opacity: 0.5;
+        }
+        .plan-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+        }
+        .plan-title { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .plan-badge {
+            font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+            padding: 4px 10px; background: var(--blue); color: #fff; border-radius: 12px; font-weight: 500;
+        }
+        .plan-badge.free { background: rgba(255,255,255,0.1); color: var(--text); }
+        .usage-stats { margin-bottom: 20px; }
+        .usage-bar-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.4); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+        .usage-bar-fill { height: 100%; background: var(--blue-bright); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px var(--blue); }
+        .usage-text { font-size: 11px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; display: flex; justify-content: space-between; }
+        .usage-text strong { color: var(--text-bright); font-weight: 500; }
+        
+        .btn-upgrade {
+            width: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+            letter-spacing: 0.5px; padding: 10px; background: var(--blue); color: #fff;
+            border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+            font-weight: 500; text-transform: uppercase;
+        }
+        .btn-upgrade:hover { background: var(--blue-bright); box-shadow: 0 0 15px var(--blue-glow); }
+
+        .main-content {
+            flex: 1; overflow-y: auto; padding: 48px; position: relative;
+        }
+        .main-content::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+            background-image: linear-gradient(rgba(43, 125, 233, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(43, 125, 233, 0.02) 1px, transparent 1px); background-size: 80px 80px;
+        }
+        .main-content::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+            background: radial-gradient(circle at 80% 0%, rgba(43, 125, 233, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 0% 100%, rgba(43, 125, 233, 0.04) 0%, transparent 50%);
+        }
+        
+        .dashboard-header {
+            display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;
+        }
+        .dashboard-header h1 { font-size: 42px; letter-spacing: 1px; line-height: 1; }
+        
+        .btn-create {
+            font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.5px;
+            padding: 12px 24px; background: var(--text-bright); color: var(--bg); 
+            border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 8px; font-weight: 600;
+        }
+        .btn-create:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,255,255,0.15); }
+        .btn-create svg { width: 16px; height: 16px; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 32px; margin-bottom: 32px; border-bottom: 1px solid var(--border-light); }
+        .tabs button {
+            font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.5px;
+            padding: 0 0 16px 0; background: none; border: none; color: var(--text-dim);
+            cursor: pointer; position: relative; transition: color 0.2s; text-transform: uppercase;
+        }
+        .tabs button:hover { color: var(--text-bright); }
+        .tabs button.active { color: var(--blue-bright); font-weight: 500; }
+        .tabs button.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--blue-bright); box-shadow: 0 -2px 10px var(--blue); }
+        .tabs .count { background: var(--surface2); color: var(--text-bright); padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px; }
+        .tabs button.active .count { background: var(--blue-dim); color: var(--blue-bright); }
+
+        /* Project Grid */
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        
+        .project-card {
+            background: rgba(16, 27, 46, 0.6); backdrop-filter: blur(12px);
+            border: 1px solid var(--border); border-radius: 12px; padding: 24px;
+            position: relative; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            min-height: 160px; display: flex; flex-direction: column;
+        }
+        .project-card:hover {
+            border-color: var(--blue-bright); transform: translateY(-4px); 
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4), 0 0 20px rgba(43,125,233,0.1); 
+            background: rgba(16, 27, 46, 0.7);
+        }
+        .project-card.archived { opacity: 0.6; filter: grayscale(50%); }
+        .project-card.archived:hover { opacity: 1; filter: grayscale(0%); }
+        
+        /* Create New Card */
+        .project-card.create-new {
+            background: rgba(43,125,233,0.02); border: 2px dashed var(--border);
+            align-items: center; justify-content: center; text-align: center; gap: 12px;
+        }
+        .project-card.create-new:hover { background: var(--blue-dim); border-color: var(--blue-bright); border-style: solid; box-shadow: 0 8px 25px var(--blue-glow); }
+        .project-card.create-new svg { width: 32px; height: 32px; color: var(--blue-bright); transition: transform 0.2s; }
+        .project-card.create-new:hover svg { transform: scale(1.1); }
+        .project-card.create-new span { font-weight: 500; color: var(--text-bright); font-size: 16px; }
+
+        .project-card-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s; }
+        .project-card:hover .project-card-actions { opacity: 1; }
+        .project-card-actions button {
+            width: 32px; height: 32px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+            border: 1px solid var(--border-light); color: var(--text); border-radius: 6px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+        }
+        .project-card-actions button:hover { color: var(--text-bright); border-color: var(--blue); background: var(--surface-hover); }
+        .project-card-actions button.delete:hover { color: var(--orange); border-color: var(--orange); }
+        .project-card-actions button svg { width: 16px; height: 16px; }
+        
+        .project-name { font-size: 18px; font-weight: 600; color: var(--text-bright); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 40px; }
+        .project-meta { font-size: 12px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; margin-bottom: auto; }
+        .project-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+        .badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 4px; font-weight: 500; }
+        .badge.shared { background: rgba(43,125,233,0.2); color: var(--blue-bright); border: 1px solid var(--blue-dim); }
+        .badge.archived { background: var(--bg); color: var(--text-dim); border: 1px solid var(--border); }
+        
+        .share-btn {
+            position: absolute; bottom: 16px; right: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; 
+            padding: 8px 12px; background: rgba(0,0,0,0.5); color: var(--text-bright); 
+            border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; 
+            transition: all 0.2s; opacity: 0; backdrop-filter: blur(4px);
+        }
+        .project-card:hover .share-btn { opacity: 1; }
+        .share-btn:hover { background: var(--blue); border-color: var(--blue); }
+        .share-btn.copied { background: var(--text-bright); color: var(--bg); border-color: var(--text-bright); }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 100px 40px; }
+        .empty-state svg { width: 48px; height: 48px; color: var(--border); margin-bottom: 24px; }
+        .empty-state h2 { font-size: 28px; margin-bottom: 12px; color: var(--text-dim); }
+
+        /* Modals & Utils - keeping original logic structures */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; max-width: 440px; width: 90%; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+        .modal h2 { font-size: 24px; margin-bottom: 24px; }
+        .modal-input { width: 100%; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); color: var(--text-bright); font-size: 15px; font-family: 'Barlow', sans-serif; margin-bottom: 24px; border-radius: 6px; transition: border-color 0.2s; }
+        .modal-input:focus { outline: none; border-color: var(--blue-bright); box-shadow: 0 0 0 2px var(--blue-dim); }
+        .modal-input::placeholder { color: var(--text-dim); }
+        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn-cancel, .btn-submit { font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 12px 24px; cursor: pointer; transition: all 0.2s; border-radius: 6px; font-weight: 500; }
+        .btn-cancel { background: transparent; color: var(--text-bright); border: 1px solid var(--border); }
+        .btn-cancel:hover { background: var(--surface-hover); }
+        .btn-submit { background: var(--blue); color: #fff; border: none; }
+        .btn-submit:hover { background: var(--blue-bright); box-shadow: 0 4px 12px var(--blue-glow); }
+        
+        .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface2); border: 1px solid var(--border-light); padding: 14px 28px; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--text-bright); z-index: 2000; opacity: 0; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; border-bottom: 2px solid var(--blue-bright); }
+        .toast.error { border-bottom-color: var(--orange); }
+        
+        .spinner-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; }
+        .spinner { width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--blue-bright); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        
+        /* Prevent dashboard flash during checkout redirect */
+        html.is-checkout-redirect .app-layout { display: none !important; }
+        html.is-checkout-redirect #checkoutLoadingOverlay { display: flex !important; }
+
+        /* Mobile block screen */
+        .mobile-block {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 32px;
+        }
+        .mobile-block-icon {
+            width: 64px;
+            height: 64px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+            color: var(--blue-bright);
+        }
+        .mobile-block h2 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--text-bright);
+            margin-bottom: 12px;
+        }
+        .mobile-block p {
+            font-size: 15px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            max-width: 320px;
+            margin-bottom: 32px;
+        }
+        .mobile-block a {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            padding: 12px 28px;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .mobile-block a:hover {
+            background: var(--blue-bright);
+        }
+
+        @media(max-width:768px) {
+            .app-layout { display: none !important; }
+            .mobile-block { display: flex; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile block screen -->
+    <div class="mobile-block">
+        <div class="mobile-block-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+        </div>
+        <h2>Desktop Required</h2>
+        <p>OnyxCAD's editor is designed for larger screens. Please open this page on a desktop or laptop computer.</p>
+        <a href="/">Back to home</a>
+    </div>
+    <script>
+        if (new URLSearchParams(window.location.search).has('checkout')) {
+            document.documentElement.classList.add('is-checkout-redirect');
+        }
+    </script>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="nav-logo" onclick="window.location.href='/dashboard'">Onyx<span class="cad">CAD</span></div>
+                <span class="nav-tagline">like PDFs for CAD</span>
+            </div>
+            
+            <div class="sidebar-user">
+                <button class="nav-user-btn" id="userBtn">
+                    <div class="user-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span id="userEmail">...</span>
+                    </div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text-dim);">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="nav-user-dropdown" id="userDropdown">
+                    <button onclick="openBilling()">Billing & Plan</button>
+                    <button onclick="signOut()" class="danger">Sign Out</button>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Projects
+                </div>
+            </nav>
+
+            <div class="sidebar-billing hidden" id="billingSection">
+                <div class="billing-card">
+                    <div class="plan-header">
+                        <span class="plan-title">Current Plan</span>
+                        <span class="plan-badge free" id="planBadge">LOADING</span>
+                    </div>
+                    <div class="usage-stats">
+                        <div class="usage-bar-bg"><div class="usage-bar-fill" id="billingBar"></div></div>
+                        <div class="usage-text">
+                            <span><strong id="activeCount">-</strong> slots used</span>
+                            <span id="limitCountText">Max -</span>
+                        </div>
+                    </div>
+                    <button class="btn-upgrade" id="upgradeBtn" onclick="openCheckout()">Upgrade</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>My Projects</h1>
+                <button class="btn-create" onclick="openCreateModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Project
+                </button>
+            </div>
+
+            <div class="tabs">
+                <button class="active" data-tab="active" onclick="switchTab('active')">
+                    Active <span class="count" id="activeCountBadge">0</span>
+                </button>
+                <button data-tab="archived" onclick="switchTab('archived')">
+                    Archived <span class="count" id="archivedCountBadge">0</span>
+                </button>
+            </div>
+
+            <div class="project-grid" id="projectGrid">
+                <div class="spinner-container">
+                    <div class="spinner" id="loadingSpinner"></div>
+                </div>
+            </div>
+
+            <div class="empty-state hidden" id="emptyState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"></path>
+                </svg>
+                <h2>No projects yet</h2>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <h2>New Project</h2>
+            <input type="text" class="modal-input" id="projectNameInput" placeholder="Enter project name..." maxlength="50">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
+                <button class="btn-submit" onclick="createProject()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing Modal (Fallback/Details) -->
+    <div class="modal-overlay" id="billingModal">
+        <div class="modal" style="max-width:380px;">
+            <h2>Billing & Plan</h2>
+            <div style="margin-bottom:20px;">
+                <div style="font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;letter-spacing:0.12em;margin-bottom:4px;">Current Plan</div>
+                <div id="billingPlanName" style="font-size:28px;font-weight:700;color:var(--text-bright);">FREE</div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Active Projects</div>
+                <div style="background:var(--bg);height:8px;border:1px solid var(--border);border-radius:4px;overflow:hidden;">
+                    <div id="modalBillingBar" style="background:var(--blue-bright);height:100%;width:0%;transition:width 0.3s;box-shadow:0 0 8px var(--blue);"></div>
+                </div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:8px;"><span id="billingActive">0</span> of <span id="billingLimit">3</span> slots used</div>
+            </div>
+            <div id="upgradeSection" style="text-align:center;margin-top:24px;">
+                <p style="font-size:12px;color:var(--text-dim);margin-bottom:16px;">Upgrade for share links and more active projects</p>
+                <button class="btn-submit" onclick="openCheckout()" style="width:100%;">Upgrade Plan</button>
+            </div>
+            <div id="portalSection" style="text-align:center;margin-top:16px;display:none;">
+                <button class="btn-cancel" onclick="openBillingPortal()" style="width:100%;font-size:12px;">Manage Subscription</button>
+            </div>
+            <div class="modal-actions" style="margin-top:24px;">
+                <button class="btn-cancel" onclick="closeBilling()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Loading Overlay -->
+    <div class="modal-overlay" id="checkoutLoadingOverlay" style="z-index: 3000; background: var(--bg); flex-direction: column; gap: 16px;">
+        <div class="spinner"></div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--text-dim);">Redirecting to secure checkout...</div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script>
+        const FIREBASE_API_KEY = "{{ firebase_api_key }}";
+        const FIREBASE_AUTH_DOMAIN = "{{ firebase_auth_domain }}";
+        const FIREBASE_PROJECT_ID = "{{ firebase_project_id }}";
+
+        if (FIREBASE_API_KEY) {
+            firebase.initializeApp({
+                apiKey: FIREBASE_API_KEY,
+                authDomain: FIREBASE_AUTH_DOMAIN,
+                projectId: FIREBASE_PROJECT_ID,
+            });
+        }
+
+        const authHeadersNoCT = () => ({ 'Authorization': 'Bearer ' + localStorage.getItem('fb_token') });
+        const authHeaders = () => ({ ...authHeadersNoCT(), 'Content-Type': 'application/json' });
+
+        let currentTab = 'active';
+        let allProjects = [];
+        let userPlan = 'free';
+
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const checkoutPlan = urlParams.get('checkout');
+            if (checkoutPlan) {
+                requestAnimationFrame(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    const overlay = document.getElementById('checkoutLoadingOverlay');
+                    if (overlay) overlay.classList.add('show');
+                });
+            }
+            const paymentStatus = urlParams.get('payment');
+            if (paymentStatus === 'success') {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(() => showToast('Payment successful! Your plan has been upgraded.'), 500);
+            }
+
+            const auth = firebase.auth();
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    localStorage.removeItem('fb_token');
+                    localStorage.removeItem('fb_uid');
+                    window.location.href = '/login';
+                    return;
+                }
+                try {
+                    const token = await user.getIdToken(true);
+                    localStorage.setItem('fb_token', token);
+                    localStorage.setItem('fb_uid', user.uid);
+                    
+                    if (checkoutPlan) {
+                        openCheckoutForPlan(checkoutPlan, true);
+                    } else {
+                        await initializeApp(token, user);
+                    }
+                } catch (e) {
+                    window.location.href = '/login';
+                }
+            });
+            setupTokenRefresh();
+
+            document.getElementById('userBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('userDropdown').classList.toggle('show');
+            });
+            document.addEventListener('click', () => {
+                document.getElementById('userDropdown').classList.remove('show');
+            });
+
+            document.getElementById('projectNameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') createProject();
+            });
+        }
+
+        async function initializeApp(token, user) {
+            try {
+                const r = await fetch('/api/me', { headers: authHeadersNoCT() });
+                const d = await r.json();
+                if (!r.ok) { signOut(); return; }
+                document.getElementById('userEmail').textContent = d.email.split('@')[0];
+                userPlan = d.plan;
+                updateBillingBar(d);
+                loadProjects();
+            } catch (e) { showToast('Failed to load', true); }
+        }
+
+        function setupTokenRefresh() {
+            setInterval(async () => {
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    try {
+                        const token = await user.getIdToken(true);
+                        localStorage.setItem('fb_token', token);
+                    } catch (e) {}
+                }
+            }, 50 * 60 * 1000);
+        }
+
+        function updateBillingBar(d) {
+            const billingSection = document.getElementById('billingSection');
+            billingSection.classList.remove('hidden');
+            
+            const pct = d.limit > 0 ? Math.min(100, (d.active_projects / d.limit) * 100) : 0;
+            
+            // Sidebar Billing UI
+            document.getElementById('planBadge').textContent = (d.plan || 'free').toUpperCase();
+            document.getElementById('planBadge').className = 'plan-badge ' + (d.plan === 'free' ? 'free' : '');
+            document.getElementById('activeCount').textContent = d.active_projects;
+            document.getElementById('limitCountText').textContent = 'Max ' + d.limit;
+            document.getElementById('billingBar').style.width = pct + '%';
+            
+            // Modal Billing UI
+            document.getElementById('billingPlanName').textContent = (d.plan || 'free').toUpperCase();
+            document.getElementById('modalBillingBar').style.width = pct + '%';
+            document.getElementById('billingActive').textContent = d.active_projects;
+            document.getElementById('billingLimit').textContent = d.limit;
+            
+            // Upgrade Visibility for both
+            const currentPlan = d.plan || 'free';
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            const modalUpgradeBtn = document.querySelector('#upgradeSection .btn-submit');
+            const portalSection = document.getElementById('portalSection');
+            
+            if (currentPlan === 'free') {
+                upgradeBtn.textContent = 'Upgrade — $79/mo';
+                upgradeBtn.onclick = () => openCheckoutForPlan('pro');
+                upgradeBtn.style.display = 'block';
+                document.getElementById('upgradeSection').style.display = 'block';
+                if(modalUpgradeBtn) modalUpgradeBtn.onclick = () => openCheckoutForPlan('pro');
+                portalSection.style.display = 'none';
+            } else if (currentPlan === 'pro') {
+                upgradeBtn.textContent = 'Upgrade — $199/mo';
+                upgradeBtn.onclick = () => openCheckoutForPlan('growth');
+                upgradeBtn.style.display = 'block';
+                document.getElementById('upgradeSection').style.display = 'block';
+                if(modalUpgradeBtn) modalUpgradeBtn.onclick = () => openCheckoutForPlan('growth');
+                portalSection.style.display = 'block';
+            } else {
+                upgradeBtn.style.display = 'none';
+                document.getElementById('upgradeSection').style.display = 'none';
+                portalSection.style.display = 'block';
+            }
+        }
+
+        async function loadProjects() {
+            try {
+                const r = await fetch('/api/models', { headers: authHeadersNoCT() });
+                const contentType = r.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    showToast('Failed to load projects (server error)', true);
+                    return;
+                }
+                const d = await r.json();
+                if (!r.ok) { 
+                    showToast(d.error || 'Failed to load projects', true); 
+                    return;
+                }
+                allProjects = Array.isArray(d.models) ? d.models : [];
+                
+                const active = allProjects.filter(p => !p.is_archived);
+                const archived = allProjects.filter(p => p.is_archived);
+                
+                document.getElementById('activeCountBadge').textContent = active.length;
+                document.getElementById('archivedCountBadge').textContent = archived.length;
+                
+                renderProjects();
+            } catch (e) { showToast('Failed to load projects', true); }
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projectGrid');
+            const empty = document.getElementById('emptyState');
+            const spinner = document.getElementById('loadingSpinner');
+            
+            if (spinner) spinner.style.display = 'none';
+            grid.innerHTML = '';
+            
+            const filtered = allProjects.filter(p => currentTab === 'active' ? !p.is_archived : p.is_archived);
+            
+            // Prepend Create New Card in Active tab
+            if (currentTab === 'active') {
+                const createCard = document.createElement('div');
+                createCard.className = 'project-card create-new';
+                createCard.onclick = openCreateModal;
+                createCard.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Create New Project</span>
+                `;
+                grid.appendChild(createCard);
+            }
+            
+            if (filtered.length === 0 && currentTab !== 'active') {
+                empty.classList.remove('hidden');
+                empty.querySelector('h2').textContent = 'No archived projects';
+                return;
+            } else {
+                empty.classList.add('hidden');
+            }
+            
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'project-card' + (p.is_archived ? ' archived' : '');
+                card.onclick = (e) => {
+                    if (e.target.closest('.project-card-actions') || e.target.closest('.share-btn')) return;
+                    if (p.is_archived) {
+                        showToast('Restore project to view it', true);
+                        return;
+                    }
+                    openProject(p.id);
+                };
+                
+                const date = new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                let badges = '';
+                if (p.is_archived) badges += '<span class="badge archived">ARCHIVED</span>';
+                else if (p.is_public) badges += '<span class="badge shared">SHARED</span>';
+                
+                card.innerHTML = `
+                    <div class="project-card-actions">
+                        <button title="${p.is_archived ? 'Restore' : 'Archive'}" onclick="${p.is_archived ? `restoreProject('${p.id}')` : `archiveProject('${p.id}')`}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                ${p.is_archived ? 
+                                '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path>' :
+                                '<polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line>'}
+                            </svg>
+                        </button>
+                        <button class="delete" title="Delete" onclick="deleteProject('${p.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="project-name">${p.name || p.original_filename}</div>
+                    <div class="project-meta">${p.original_filename}</div>
+                    <div class="project-meta" style="margin-top:2px;">${date}</div>
+                    <div class="project-badges">${badges}</div>
+                    ${p.is_public && !p.is_archived ? `<button class="share-btn" onclick="copyShareLink('${p.id}', this)">📋 Copy Link</button>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.tabs button[data-tab="${tab}"]`).classList.add('active');
+            renderProjects();
+        }
+
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('show');
+            document.getElementById('projectNameInput').value = '';
+            document.getElementById('projectNameInput').focus();
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+        }
+
+        async function createProject() {
+            const name = document.getElementById('projectNameInput').value.trim() || 'Untitled Project';
+            closeCreateModal();
+            showToast('Creating project...');
+            
+            try {
+                const r = await fetch('/api/projects', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ name })
+                });
+                
+                let d;
+                const contentType = r.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    d = await r.json();
+                } else {
+                    showToast('Server error. Try again later.', true);
+                    return;
+                }
+                
+                if (r.status === 403 && d.error && d.error.includes('upgrade_required')) {
+                    showToast('Project limit reached. Upgrade your plan or archive a project.', true);
+                    return;
+                }
+                
+                if (!r.ok) { 
+                    showToast(d.error || d.message || 'Failed to create project', true); 
+                    return; 
+                }
+                
+                showToast('Project created!');
+                window.location.href = '/viewer/' + d.project_id;
+            } catch (e) { showToast('Failed to create project', true); }
+        }
+
+        function openProject(projectId) {
+            window.location.href = '/viewer/' + projectId;
+        }
+
+        async function archiveProject(projectId) {
+            try {
+                const r = await fetch(`/api/models/${projectId}/archive`, { method: 'POST', headers: authHeaders() });
+                const contentType = r.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    showToast('Failed to archive', true);
+                    await loadProjects();
+                    return;
+                }
+                const d = await r.json();
+                
+                if (!r.ok || !d.ok) { 
+                    showToast(d.error || 'Failed to archive', true); 
+                    await loadProjects();
+                    return; 
+                }
+                showToast('Project archived');
+                
+                try {
+                    const me = await fetch('/api/me', { headers: authHeadersNoCT() });
+                    const meD = await me.json();
+                    updateBillingBar(meD);
+                } catch (e) {}
+                await loadProjects();
+            } catch (e) { 
+                showToast('Failed to archive', true);
+                await loadProjects();
+            }
+        }
+
+        async function restoreProject(projectId) {
+            try {
+                const r = await fetch(`/api/models/${projectId}/unarchive`, { method: 'POST', headers: authHeaders() });
+                const contentType = r.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    showToast('Failed to restore', true);
+                    await loadProjects();
+                    return;
+                }
+                const d = await r.json();
+                
+                if (r.status === 403 && d.error === 'upgrade_required') {
+                    showToast('Project limit reached. Archive a project or upgrade.', true);
+                    await loadProjects();
+                    return;
+                }
+                
+                if (!r.ok || !d.ok) { 
+                    showToast(d.error || 'Failed to restore', true); 
+                    await loadProjects();
+                    return; 
+                }
+                showToast('Project restored');
+                
+                try {
+                    const me = await fetch('/api/me', { headers: authHeadersNoCT() });
+                    const meD = await me.json();
+                    updateBillingBar(meD);
+                } catch (e) {}
+                await loadProjects();
+            } catch (e) { 
+                showToast('Failed to restore', true);
+                await loadProjects();
+            }
+        }
+
+        async function deleteProject(projectId) {
+            if (!confirm('Delete this project and all its annotations?')) return;
+            try {
+                const r = await fetch(`/api/models/${projectId}`, { method: 'DELETE', headers: authHeaders() });
+                const d = await r.json();
+                if (!d.ok) { showToast(d.error || 'Failed to delete', true); return; }
+                showToast('Project deleted');
+                
+                try {
+                    const me = await fetch('/api/me', { headers: authHeadersNoCT() });
+                    const meD = await me.json();
+                    updateBillingBar(meD);
+                } catch (e) {}
+                await loadProjects();
+            } catch (e) { showToast('Failed to delete', true); }
+        }
+
+        async function copyShareLink(projectId, btn) {
+            const project = allProjects.find(p => p.id === projectId);
+            if (!project || !project.share_token) return;
+            
+            const link = window.location.origin + '/share/' + project.share_token;
+            await navigator.clipboard.writeText(link);
+            btn.classList.add('copied');
+            btn.textContent = '✓ Copied!';
+            setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy Link'; }, 2000);
+        }
+
+        function openBilling() {
+            document.getElementById('userDropdown').classList.remove('show');
+            document.getElementById('billingModal').classList.add('show');
+        }
+
+        function closeBilling() {
+            document.getElementById('billingModal').classList.remove('show');
+        }
+
+        async function openCheckout() {
+            openCheckoutForPlan('pro');
+        }
+        
+        async function openCheckoutForPlan(plan, isInitialRedirect = false) {
+            const overlay = document.getElementById('checkoutLoadingOverlay');
+            if (overlay) overlay.classList.add('show');
+
+            try {
+                const r = await fetch('/api/billing/checkout', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ plan: plan })
+                });
+                const d = await r.json();
+                if (d.checkout_url) {
+                    window.location.href = d.checkout_url;
+                } else {
+                    if (overlay) overlay.classList.remove('show');
+                    showToast(d.error || 'Failed to start checkout', true);
+                    if (isInitialRedirect) {
+                        initializeApp(localStorage.getItem('fb_token'), firebase.auth().currentUser);
+                    }
+                }
+            } catch (e) { 
+                if (overlay) overlay.classList.remove('show');
+                showToast('Checkout error', true); 
+                if (isInitialRedirect) {
+                    initializeApp(localStorage.getItem('fb_token'), firebase.auth().currentUser);
+                }
+            }
+        }
+
+        async function openBillingPortal() {
+            try {
+                const r = await fetch('/api/billing/portal', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                });
+                const d = await r.json();
+                if (d.portal_url) {
+                    window.location.href = d.portal_url;
+                } else {
+                    showToast(d.error || 'Failed to open billing portal', true);
+                }
+            } catch (e) {
+                showToast('Failed to open billing portal', true);
+            }
+        }
+
+        function signOut() {
+            firebase.auth().signOut().then(() => {
+                localStorage.clear();
+                window.location.href = '/';
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

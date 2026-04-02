@@ -1,0 +1,18 @@
+/uploads/
+/venv/
+server_logs.txt
+stepviewer.db
+temp/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+firebase-credentials.json
+
+# Documentation (keep only README.md)
+*.md
+!README.md
+
+# Database schema files
+supabase_schema.sql
+supabase_cleanup.sql

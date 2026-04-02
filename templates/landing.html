@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OnyxCAD — Annotate STEP files in your browser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #060a10;
+            --surface: #0b1220;
+            --surface2: #101b2e;
+            --blue: #2b7de9;
+            --blue-bright: #4a9af5;
+            --blue-dim: rgba(43, 125, 233, 0.12);
+            --orange: #e07b39;
+            --text: #b8ccd8;
+            --text-dim: #4a6478;
+            --text-bright: #ddeeff;
+            --mono: #6a9cbf;
+            --border: rgba(43, 125, 233, 0.14);
+            --line: rgba(43, 125, 233, 0.18);
+            --grid: rgba(43, 125, 233, 0.055)
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-x: hidden
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 40px 40px
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(rgba(43, 125, 233, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(43, 125, 233, 0.1) 1px, transparent 1px);
+            background-size: 200px 200px
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            color: var(--text-bright)
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace
+        }
+
+        a {
+            color: var(--blue-bright);
+            text-decoration: none
+        }
+
+        ul {
+            list-style: none
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px
+        }
+
+        @media(max-width:768px) {
+            .container {
+                padding: 0 20px
+            }
+        }
+
+        /* ── Zone label ─────────────────────────── */
+        .zone-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 24px
+        }
+
+        .zone-label::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 1px;
+            background: var(--blue)
+        }
+
+        .zone-tag {
+            border: 1px solid var(--blue);
+            padding: 2px 8px;
+            font-size: 9px;
+            letter-spacing: 0.12em
+        }
+
+        /* ── Corner brackets ────────────────────── */
+        .corner-bracket {
+            position: relative
+        }
+
+        .corner-bracket::before,
+        .corner-bracket::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--blue);
+            pointer-events: none
+        }
+
+        .corner-bracket::before {
+            top: -1px;
+            left: -1px;
+            border-right: none;
+            border-bottom: none
+        }
+
+        .corner-bracket::after {
+            bottom: -1px;
+            right: -1px;
+            border-left: none;
+            border-top: none
+        }
+
+        /* ── Crosshair ──────────────────────────── */
+        .crosshair {
+            position: absolute;
+            width: 16px;
+            height: 16px
+        }
+
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: var(--blue);
+            opacity: 0.35
+        }
+
+        .crosshair::before {
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%
+        }
+
+        .crosshair::after {
+            top: 50%;
+            left: 0;
+            height: 1px;
+            width: 100%
+        }
+
+        /* ═══ NAV ═════════════════════════════════ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: rgba(6, 10, 16, 0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .nav-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--text-bright)
+        }
+
+        .nav-logo .dot {
+            color: var(--blue)
+        }
+
+        .nav-logo .cad {
+            color: var(--blue)
+        }
+
+        .nav-tagline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding-left: 16px;
+            border-left: 1px solid var(--border);
+            margin-left: 16px
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            transition: color 0.2s
+        }
+
+        .nav-links a:hover {
+            color: var(--text-bright)
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .btn-outline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 8px 20px;
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-outline:hover {
+            border-color: var(--blue);
+            color: var(--blue-bright)
+        }
+
+        .btn-filled {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            padding: 8px 20px;
+            background: var(--blue);
+            color: #fff;
+            border: 1px solid var(--blue);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-filled:hover {
+            background: var(--blue-bright)
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .nav-tagline {
+                display: none
+            }
+
+            nav {
+                padding: 16px 20px
+            }
+
+            .nav-right .btn-outline,
+            .nav-right .btn-filled {
+                font-size: 10px;
+                padding: 6px 14px
+            }
+        }
+
+        /* ═══ HERO ════════════════════════════════ */
+        .hero {
+            padding: 100px 40px 80px
+        }
+
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center
+        }
+
+        .stamp {
+            display: inline-block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            border: 1px solid var(--orange);
+            padding: 4px 12px;
+            transform: rotate(-1.5deg);
+            margin-bottom: 28px
+        }
+
+        .hero h1 {
+            font-size: 82px;
+            line-height: 0.95;
+            margin-bottom: 24px
+        }
+
+        .hero h1 .accent {
+            color: var(--blue);
+            position: relative
+        }
+
+        .hero h1 .accent::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--blue);
+            opacity: 0.4
+        }
+
+        .hero-sub {
+            font-size: 17px;
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 440px
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap
+        }
+
+        .btn-primary {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            padding: 14px 32px;
+            background: var(--blue);
+            color: #fff;
+            border: 1px solid var(--blue);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-bright);
+            transform: translateY(-1px)
+        }
+
+        .btn-secondary {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            padding: 14px 32px;
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .btn-secondary:hover {
+            color: var(--text-bright);
+            border-color: var(--blue)
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 40px
+        }
+
+        .stat-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 4px
+        }
+
+        .stat-value {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--text-bright)
+        }
+
+        /* Hero visual */
+        .hero-visual {
+            position: relative;
+            padding: 16px
+        }
+
+        .cad-frame {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            aspect-ratio: 1/0.85;
+            overflow: hidden;
+            position: relative
+        }
+
+        .cad-frame::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 1px solid rgba(43, 125, 233, 0.1);
+            pointer-events: none;
+            z-index: 2
+        }
+
+        .cad-frame-top {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            color: var(--text-dim)
+        }
+
+        .cad-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: calc(100% - 36px)
+        }
+
+        .cad-body svg {
+            width: 300px;
+            height: 260px
+        }
+
+        /* Callout bubbles */
+        .callout {
+            position: absolute;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            background: var(--surface2);
+            border: 1px solid var(--blue);
+            padding: 5px 10px;
+            color: var(--blue-bright);
+            white-space: nowrap;
+            animation: calloutIn 0.4s ease both
+        }
+
+        .callout::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            width: 20px;
+            height: 1px;
+            background: var(--blue);
+            transform: translateY(-50%)
+        }
+
+        .callout-1 {
+            top: 12%;
+            right: 2%
+        }
+
+        .callout-1::before {
+            left: auto;
+            right: 100%
+        }
+
+        .callout-2 {
+            bottom: 18%;
+            right: 2%
+        }
+
+        .callout-2::before {
+            left: auto;
+            right: 100%
+        }
+
+        .callout-3 {
+            top: 12%;
+            left: 2%
+        }
+
+        @keyframes calloutIn {
+            from {
+                opacity: 0;
+                transform: translateX(4px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        /* Hero animations */
+        .hero-left>* {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeUp 0.5s ease forwards
+        }
+
+        .hero-left>*:nth-child(1) {
+            animation-delay: 0.05s
+        }
+
+        .hero-left>*:nth-child(2) {
+            animation-delay: 0.12s
+        }
+
+        .hero-left>*:nth-child(3) {
+            animation-delay: 0.18s
+        }
+
+        .hero-left>*:nth-child(4) {
+            animation-delay: 0.24s
+        }
+
+        .hero-left>*:nth-child(5) {
+            animation-delay: 0.30s
+        }
+
+        .hero-visual {
+            opacity: 0;
+            animation: fadeUp 0.5s ease 0.2s forwards
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @media(max-width:768px) {
+            .hero {
+                padding: 60px 20px 40px
+            }
+
+            .hero .container {
+                grid-template-columns: 1fr;
+                gap: 40px
+            }
+
+            .hero-visual {
+                display: none
+            }
+
+            .hero h1 {
+                font-size: 40px
+            }
+
+            .hero-sub {
+                font-size: 15px
+            }
+
+            .hero-ctas {
+                flex-direction: column
+            }
+
+            .hero-ctas .btn-primary,
+            .hero-ctas .btn-secondary {
+                text-align: center
+            }
+
+            .hero-stats {
+                flex-wrap: wrap;
+                gap: 20px
+            }
+
+            .stat-value {
+                font-size: 24px
+            }
+        }
+
+        /* ═══ PROOF BAR ═══════════════════════════ */
+        .proof-bar {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 28px 40px;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1
+        }
+
+        .proof-item {
+            text-align: center;
+            position: relative
+        }
+
+        .proof-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--border)
+        }
+
+        .proof-value {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 36px;
+            color: var(--text-bright)
+        }
+
+        .proof-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase
+        }
+
+        @media(max-width:768px) {
+            .proof-bar {
+                gap: 24px;
+                padding: 24px 20px;
+                display: grid;
+                grid-template-columns: 1fr 1fr
+            }
+
+            .proof-item:not(:last-child)::after {
+                display: none
+            }
+
+            .proof-value {
+                font-size: 28px
+            }
+        }
+
+        /* ═══ PROBLEM SECTION ═════════════════════ */
+        .problem-section {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1
+        }
+
+        .problem-section h2 {
+            font-size: 48px;
+            margin-bottom: 48px
+        }
+
+        .problem-section h2 span {
+            font-weight: 300;
+            color: var(--text-dim)
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            position: relative;
+            z-index: 1
+        }
+
+        .ba-card {
+            padding: 32px
+        }
+
+        .ba-before {
+            border: 1px solid var(--border);
+            border-right: none;
+            background: rgba(11, 18, 32, 0.4)
+        }
+
+        .ba-after {
+            border: 1px solid var(--blue);
+            background: var(--surface)
+        }
+
+        .ba-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            margin-bottom: 16px
+        }
+
+        .ba-before .ba-label {
+            color: var(--text-dim)
+        }
+
+        .ba-after .ba-label {
+            color: var(--blue)
+        }
+
+        .ba-item {
+            display: flex;
+            gap: 12px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            line-height: 1.5
+        }
+
+        .ba-icon {
+            font-family: 'IBM Plex Mono', monospace;
+            flex-shrink: 0;
+            font-size: 14px
+        }
+
+        .ba-before .ba-icon {
+            color: var(--text-dim)
+        }
+
+        .ba-after .ba-icon {
+            color: var(--blue)
+        }
+
+        .vs-divider {
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .vs-divider span {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            writing-mode: vertical-rl
+        }
+
+        @media(max-width:768px) {
+            .problem-section {
+                padding: 60px 0
+            }
+
+            .problem-section h2 {
+                font-size: 32px
+            }
+
+            .before-after {
+                grid-template-columns: 1fr
+            }
+
+            .ba-before {
+                border-right: 1px solid var(--border)
+            }
+
+            .vs-divider {
+                display: none
+            }
+
+            .ba-card {
+                padding: 24px
+            }
+        }
+
+        /* ═══ FEATURES SECTION ════════════════════ */
+        .features-section {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1
+        }
+
+        .features-section h2 {
+            font-size: 48px;
+            margin-bottom: 48px
+        }
+
+        .features-section h2 span {
+            font-weight: 300;
+            color: var(--text-dim)
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            position: relative;
+            z-index: 1
+        }
+
+        .feature-cell {
+            background: var(--bg);
+            padding: 36px 32px;
+            transition: background 0.2s
+        }
+
+        .feature-cell:hover {
+            background: var(--surface)
+        }
+
+        .feature-tag {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px
+        }
+
+        .feature-tag::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border)
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--blue-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue);
+            font-size: 16px;
+            margin-bottom: 20px
+        }
+
+        .feature-cell h3 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 10px
+        }
+
+        .feature-cell p {
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.65
+        }
+
+        .feature-spec {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--mono);
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            margin-top: 24px
+        }
+
+        @media(max-width:768px) {
+            .features-section {
+                padding: 60px 0
+            }
+
+            .features-section h2 {
+                font-size: 32px
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr
+            }
+
+            .feature-cell {
+                padding: 28px 24px
+            }
+        }
+
+        /* ═══ HOW IT WORKS ════════════════════════ */
+        .how-section {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1
+        }
+
+        .how-section h2 {
+            font-size: 48px;
+            margin-bottom: 48px
+        }
+
+        .how-section h2 span {
+            font-weight: 300;
+            color: var(--text-dim)
+        }
+
+        .how-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            position: relative;
+            z-index: 1
+        }
+
+        .how-steps::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 16.66%;
+            right: 16.66%;
+            height: 1px;
+            background: var(--line);
+            z-index: 0
+        }
+
+        .step {
+            padding: 0 24px
+        }
+
+        .step:first-child {
+            padding-left: 0
+        }
+
+        .step:last-child {
+            padding-right: 0
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--blue);
+            background: var(--bg);
+            position: relative;
+            z-index: 1;
+            margin-bottom: 28px
+        }
+
+        .step h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px
+        }
+
+        .step p {
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.65
+        }
+
+        @media(max-width:768px) {
+            .how-section {
+                padding: 60px 0
+            }
+
+            .how-section h2 {
+                font-size: 32px
+            }
+
+            .how-steps {
+                grid-template-columns: 1fr;
+                gap: 32px
+            }
+
+            .how-steps::before {
+                display: none
+            }
+
+            .step {
+                padding-left: 0;
+                padding-right: 0
+            }
+        }
+
+        /* ═══ PRICING ═════════════════════════════ */
+        .pricing-section {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1
+        }
+
+        .pricing-section h2 {
+            font-size: 48px;
+            margin-bottom: 48px
+        }
+
+        .pricing-section h2 span {
+            font-weight: 300;
+            color: var(--text-dim)
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            position: relative;
+            z-index: 1
+        }
+
+        .plan-card {
+            padding: 40px 32px;
+            background: var(--bg)
+        }
+
+        .plan-card.featured {
+            background: var(--surface);
+            border: 1px solid var(--blue);
+            z-index: 2;
+            margin: -1px
+        }
+
+        .plan-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            border: 1px solid var(--blue);
+            display: inline-block;
+            padding: 3px 10px;
+            margin-bottom: 16px
+        }
+
+        .plan-card:not(.featured) .plan-badge {
+            border-color: var(--border);
+            color: var(--text-dim)
+        }
+
+        .plan-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            text-transform: uppercase;
+            color: var(--text-bright);
+            margin-bottom: 4px
+        }
+
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+            margin-bottom: 8px
+        }
+
+        .plan-dollar {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 16px;
+            color: var(--text-dim)
+        }
+
+        .plan-amount {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 52px;
+            line-height: 1;
+            color: var(--text-bright)
+        }
+
+        .plan-period {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim)
+        }
+
+        .plan-desc {
+            font-size: 13px;
+            font-weight: 300;
+            color: var(--text-dim);
+            margin-bottom: 28px
+        }
+
+        .plan-divider {
+            border: none;
+            border-top: 1px solid var(--border)
+        }
+
+        .plan-features {
+            margin-top: 24px
+        }
+
+        .plan-features li {
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            align-items: flex-start
+        }
+
+        .plan-features li::before {
+            content: '—';
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--blue);
+            flex-shrink: 0
+        }
+
+        .plan-features li.muted {
+            color: var(--text-dim)
+        }
+
+        .plan-features li.muted::before {
+            color: var(--text-dim)
+        }
+
+        .plan-cta {
+            display: block;
+            text-align: center;
+            padding: 12px;
+            margin-top: 32px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            transition: all 0.2s;
+            background: transparent;
+            cursor: pointer;
+            width: 100%
+        }
+
+        .plan-cta:hover {
+            border-color: var(--blue);
+            color: var(--blue-bright)
+        }
+
+        .plan-card.featured .plan-cta {
+            background: var(--blue);
+            border-color: var(--blue);
+            color: #fff
+        }
+
+        .plan-card.featured .plan-cta:hover {
+            background: var(--blue-bright)
+        }
+
+        .pricing-note {
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 20px;
+            position: relative;
+            z-index: 1
+        }
+
+        @media(max-width:768px) {
+            .pricing-section {
+                padding: 60px 0
+            }
+
+            .pricing-section h2 {
+                font-size: 32px
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr
+            }
+
+            .plan-card {
+                padding: 32px 24px
+            }
+
+            .plan-amount {
+                font-size: 44px
+            }
+        }
+
+        /* ═══ FINAL CTA ═══════════════════════════ */
+        .final-cta {
+            padding: 100px 40px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1
+        }
+
+        @media(max-width:768px) {
+            .final-cta {
+                padding: 60px 20px
+            }
+
+            .final-cta h2 {
+                font-size: 36px
+            }
+
+            .final-cta .subtitle {
+                font-size: 14px
+            }
+        }
+
+        .final-cta h2 {
+            font-size: 64px;
+            margin-bottom: 16px
+        }
+
+        .final-cta h2 span {
+            font-weight: 300;
+            color: var(--text-dim)
+        }
+
+        .final-cta .subtitle {
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        .final-cta .attribution {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 20px
+        }
+
+        /* ═══ FOOTER ══════════════════════════════ */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            z-index: 1
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 16px
+        }
+
+        .footer-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-bright)
+        }
+
+        .footer-logo .dot {
+            color: var(--blue)
+        }
+
+        .footer-logo .cad {
+            color: var(--blue)
+        }
+
+        .footer-tagline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding-left: 20px;
+            border-left: 1px solid var(--border)
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            transition: color 0.2s
+        }
+
+        .footer-links a:hover {
+            color: var(--blue-bright)
+        }
+
+        @media(max-width:768px) {
+            footer {
+                flex-direction: column;
+                text-align: center;
+                padding: 24px 20px
+            }
+
+            .footer-tagline {
+                display: none
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ NAV ════════════════════════════════════════ -->
+    <nav>
+        <div style="display:flex;align-items:center">
+            <a href="/" class="nav-logo">Onyx<span class="cad">CAD</span><span class="dot">.</span></a>
+            <span class="nav-tagline">like PDFs for CAD</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="#pricing">Pricing</a>
+        </div>
+        <div class="nav-right">
+            <a href="/login" class="btn-outline">Log in</a>
+            <a href="/login" class="btn-filled">Get started →</a>
+        </div>
+    </nav>
+
+    <!-- ═══ HERO ══════════════════════════════════════ -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-left">
+                <!-- <div class="stamp">Rev. A · Open Beta</div> -->
+                <div class="stamp">Engineer → Factory</div>
+                <h1>Your STEP file<br />is a <span class="accent">DEAD</span><br />document.</h1>
+                <!-- <h1>Click a face<br />Set the<span class="accent">tolerance</span><br />Send a link.</h1> -->
+                <p class="hero-sub">Annotate faces with tolerances, threads, and colors directly on the 3D model. Share
+                    a link. Your factory sees exactly what you mean — no 2D drawings, no back-and-forth.</p>
+                <div class="hero-ctas">
+                    <a href="/login" class="btn-primary">Upload a STEP file free →</a>
+                    <a href="#how" class="btn-secondary">See how it works</a>
+                </div>
+                <div class="hero-stats">
+                    <div>
+                        <div class="stat-label">Free tier</div>
+                        <div class="stat-value">3 models</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">Setup time</div>
+                        <div class="stat-value">&lt; 60s</div>
+                    </div>
+                    <div>
+                        <div class="stat-label">CAD license</div>
+                        <div class="stat-value">none</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual corner-bracket">
+                <div class="crosshair" style="top:-8px;left:-8px"></div>
+                <div class="crosshair" style="bottom:-8px;right:-8px"></div>
+                <div class="cad-frame">
+                    <div class="cad-frame-top">
+                        <span>OnyxCAD VIEWER · REV A</span>
+                        <span>gear_housing_v3.step</span>
+                        <span>FACE COUNT: 247</span>
+                    </div>
+                    <div class="cad-body">
+                        <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Base plate bottom face -->
+                            <polygon points="50,180 150,220 250,180 150,140" fill="#0f1e35" stroke="#2b7de9"
+                                stroke-opacity="0.5" stroke-width="0.8" />
+                            <!-- Base plate top face -->
+                            <polygon points="50,140 150,180 250,140 150,100" fill="#152640" stroke="#2b7de9"
+                                stroke-opacity="0.7" stroke-width="0.8" />
+                            <!-- Left side face -->
+                            <polygon points="50,140 50,180 150,220 150,180" fill="#0d1830" stroke="#2b7de9"
+                                stroke-opacity="0.4" stroke-width="0.8" />
+                            <!-- Front face -->
+                            <polygon points="150,180 150,220 250,180 250,140" fill="#111f38" stroke="#2b7de9"
+                                stroke-opacity="0.5" stroke-width="0.8" />
+                            <!-- TOP FACE (selected/highlighted) -->
+                            <polygon points="50,140 150,180 250,140 150,100" fill="#2b7de9" fill-opacity="0.06"
+                                stroke="#4a9af5" stroke-width="1.2" />
+                            <line x1="50" y1="140" x2="150" y2="100" stroke="#4a9af5" stroke-width="1.4" />
+                            <line x1="150" y1="100" x2="250" y2="140" stroke="#4a9af5" stroke-width="1.4" />
+                            <!-- Cylindrical boss outer -->
+                            <ellipse cx="150" cy="118" rx="28" ry="10" fill="#0d1830" stroke="#2b7de9"
+                                stroke-opacity="0.6" stroke-width="0.8" />
+                            <ellipse cx="150" cy="108" rx="28" ry="10" fill="#162845" stroke="#4a9af5"
+                                stroke-width="0.8" />
+                            <!-- Cylindrical boss inner hole -->
+                            <ellipse cx="150" cy="108" rx="12" ry="5" fill="#0a1220" stroke="#2b7de9"
+                                stroke-opacity="0.4" stroke-width="0.5" />
+                            <!-- Left side feature 1 -->
+                            <ellipse cx="90" cy="152" rx="14" ry="5" fill="#162845" stroke="#2b7de9"
+                                stroke-opacity="0.5" stroke-width="0.6" />
+                            <rect x="76" y="152" width="28" height="18" fill="#0d1830" stroke="#2b7de9"
+                                stroke-opacity="0.3" stroke-width="0.5" />
+                            <ellipse cx="90" cy="170" rx="14" ry="5" fill="#0d1830" stroke="#2b7de9"
+                                stroke-opacity="0.4" stroke-width="0.6" />
+                            <!-- Right side feature 2 -->
+                            <ellipse cx="210" cy="152" rx="14" ry="5" fill="#162845" stroke="#2b7de9"
+                                stroke-opacity="0.5" stroke-width="0.6" />
+                            <rect x="196" y="152" width="28" height="18" fill="#0d1830" stroke="#2b7de9"
+                                stroke-opacity="0.3" stroke-width="0.5" />
+                            <ellipse cx="210" cy="170" rx="14" ry="5" fill="#0d1830" stroke="#2b7de9"
+                                stroke-opacity="0.4" stroke-width="0.6" />
+                            <!-- Dimension line -->
+                            <line x1="40" y1="240" x2="260" y2="240" stroke="#4a6478" stroke-width="0.5" />
+                            <line x1="40" y1="235" x2="40" y2="245" stroke="#4a6478" stroke-width="0.5" />
+                            <line x1="260" y1="235" x2="260" y2="245" stroke="#4a6478" stroke-width="0.5" />
+                            <text x="150" y="254" text-anchor="middle" fill="#4a6478"
+                                font-family="'IBM Plex Mono', monospace" font-size="7">120.000 mm</text>
+                        </svg>
+                    </div>
+                </div>
+                <div class="callout callout-1">±0.001" LINEAR</div>
+                <div class="callout callout-2">UNC 1/4–20 · THRU</div>
+                <div class="callout callout-3">FACE #122</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ PROOF BAR ═════════════════════════════════ -->
+    <div class="proof-bar">
+        <div class="proof-item">
+            <div class="proof-value">STEP</div>
+            <div class="proof-label">native format</div>
+        </div>
+        <div class="proof-item">
+            <div class="proof-value">3</div>
+            <div class="proof-label">metadata strategies</div>
+        </div>
+        <div class="proof-item">
+            <div class="proof-value">0</div>
+            <div class="proof-label">CAD licenses required</div>
+        </div>
+        <div class="proof-item">
+            <div class="proof-value">browser</div>
+            <div class="proof-label">runs everywhere</div>
+        </div>
+    </div>
+
+    <!-- ═══ PROBLEM ═══════════════════════════════════ -->
+    <section class="problem-section" id="features">
+        <div class="container">
+            <div class="zone-label"><span class="zone-tag">ZONE A</span> The problem</div>
+            <h2>STEP files are geometry.<br /><span>Nothing else survives the handoff.</span></h2>
+            <div class="before-after">
+                <div class="ba-card ba-before">
+                    <div class="ba-label">— Without OnyxCAD</div>
+                    <div class="ba-item"><span class="ba-icon">×</span>Export STEP, create a separate 2D PDF drawing
+                        manually</div>
+                    <div class="ba-item"><span class="ba-icon">×</span>Files drift out of sync — drawing says one thing,
+                        model another</div>
+                    <div class="ba-item"><span class="ba-icon">×</span>Factory defaults to ±0.005″ because specs are
+                        buried in a PDF</div>
+                    <div class="ba-item"><span class="ba-icon">×</span>Three email threads to clarify one hole callout
+                    </div>
+                    <div class="ba-item"><span class="ba-icon">×</span>Annotations locked in SolidWorks — useless
+                        without a license</div>
+                </div>
+                <div class="vs-divider"><span>vs</span></div>
+                <div class="ba-card ba-after">
+                    <div class="ba-label">+ With OnyxCAD</div>
+                    <div class="ba-item"><span class="ba-icon">→</span>Click any face, assign a tolerance. Done in
+                        seconds.</div>
+                    <div class="ba-item"><span class="ba-icon">→</span>Annotations bake into the STEP file — one
+                        document, always in sync</div>
+                    <div class="ba-item"><span class="ba-icon">→</span>Share a link. Factory opens in browser, clicks
+                        face, sees the spec.</div>
+                    <div class="ba-item"><span class="ba-icon">→</span>No ambiguity. No back-and-forth. First-article
+                        inspections pass.</div>
+                    <div class="ba-item"><span class="ba-icon">→</span>No CAD license required to view or review</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FEATURES ══════════════════════════════════ -->
+    <section class="features-section">
+        <div class="container">
+            <div class="zone-label"><span class="zone-tag">ZONE B</span> Specifications</div>
+            <h2>Built for the handoff,<br /><span>not the design.</span></h2>
+            <div class="features-grid">
+                <div class="feature-cell">
+                    <div class="feature-tag">F–01</div>
+                    <div class="feature-icon">◎</div>
+                    <h3>Face-level annotations</h3>
+                    <p>Click any surface on the 3D model. Assign a tolerance, thread spec, color, or note. Every
+                        annotation is bound to that face's geometry hash — not an index that breaks on re-export.</p>
+                    <div class="feature-spec">tolerance · thread · color · notes</div>
+                </div>
+                <div class="feature-cell">
+                    <div class="feature-tag">F–02</div>
+                    <div class="feature-icon">⬡</div>
+                    <h3>Metadata survives export</h3>
+                    <p>Three parallel injection strategies embed your annotations into the STEP file structure itself.
+                        Open the exported file in SolidWorks, Fusion, or any viewer — the metadata is there.</p>
+                    <div class="feature-spec">PROPERTY_DEFINITION · PRODUCT_DESC · COMMENT</div>
+                </div>
+                <div class="feature-cell">
+                    <div class="feature-tag">F–03</div>
+                    <div class="feature-icon">↗</div>
+                    <h3>Share with anyone</h3>
+                    <p>One link. No account required to view. Your factory, customer, contract reviewer — they click the
+                        face, they see the spec. Read-only. Nothing to install.</p>
+                    <div class="feature-spec">read-only · browser-native · no install</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ HOW IT WORKS ══════════════════════════════ -->
+    <section class="how-section" id="how">
+        <div class="container">
+            <div class="zone-label"><span class="zone-tag">ZONE C</span> Process</div>
+            <h2>Three steps.<br /><span>Under two minutes.</span></h2>
+            <div class="how-steps">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <h3>Upload your STEP file</h3>
+                    <p>Drag and drop any STEP file. The geometry processes in seconds — hundreds of faces, automatically
+                        fingerprinted and ready to annotate.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <h3>Click faces, assign specs</h3>
+                    <p>Click any surface in the 3D viewer. Set tolerances, thread types, colors. Use the heat map to
+                        visualize your tolerance distribution across the whole part.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <h3>Export or share a link</h3>
+                    <p>Export an annotated STEP file with metadata baked in. Or copy a share link — anyone with it can
+                        view the annotated model in a browser, no account needed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ PRICING ═══════════════════════════════════ -->
+    <section class="pricing-section" id="pricing">
+        <div class="container">
+            <div class="zone-label"><span class="zone-tag">ZONE D</span> Pricing</div>
+            <h2>Simple. Flat.<br /><span>No per-seat nonsense.</span></h2>
+            <div class="pricing-grid">
+                <!-- Free -->
+                <div class="plan-card">
+                    <div class="plan-badge">Free</div>
+                    <div class="plan-name">STARTER</div>
+                    <div class="plan-price"><span class="plan-dollar">$</span><span class="plan-amount">0</span><span
+                            class="plan-period">/month</span></div>
+                    <p class="plan-desc">For engineers evaluating the workflow. Full functionality, limited scale.</p>
+                    <hr class="plan-divider" />
+                    <ul class="plan-features">
+                        <li>3 active projects</li>
+                        <li>All annotation types</li>
+                        <li>STEP export with metadata</li>
+                        <li>Tolerance heat map</li>
+                        <li class="muted">Share links — not included</li>
+                        <li class="muted">Persistent projects dashboard</li>
+                    </ul>
+                    <a href="/login" class="plan-cta">Start free →</a>
+                </div>
+                <!-- Pro -->
+                <div class="plan-card featured">
+                    <div class="plan-badge">Most popular</div>
+                    <div class="plan-name">PRO</div>
+                    <div class="plan-price"><span class="plan-dollar">$</span><span class="plan-amount">79</span><span
+                            class="plan-period">/month</span></div>
+                    <p class="plan-desc">For hardware engineers sending parts to factories weekly.</p>
+                    <hr class="plan-divider" />
+                    <ul class="plan-features">
+                        <li>10 active projects</li>
+                        <li>All annotation types</li>
+                        <li>STEP export with metadata</li>
+                        <li>Tolerance heat map + Hole Wizard</li>
+                        <li>Shareable read-only links</li>
+                        <li>Persistent projects dashboard</li>
+                    </ul>
+                    <a href="/login?plan=pro" class="plan-cta">Start with Pro →</a>
+                </div>
+                <!-- Growth -->
+                <div class="plan-card">
+                    <div class="plan-badge">Growth</div>
+                    <div class="plan-name">GROWTH</div>
+                    <div class="plan-price"><span class="plan-dollar">$</span><span class="plan-amount">199</span><span
+                            class="plan-period">/month</span></div>
+                    <p class="plan-desc">For companies managing many parts across multiple suppliers.</p>
+                    <hr class="plan-divider" />
+                    <ul class="plan-features">
+                        <li>50 active projects</li>
+                        <li>All annotation types</li>
+                        <li>STEP export with metadata</li>
+                        <li>Tolerance heat map + Hole Wizard</li>
+                        <li>Unlimited share links</li>
+                        <li>Priority processing</li>
+                    </ul>
+                    <a href="/login?plan=growth" class="plan-cta">Get Growth →</a>
+                </div>
+            </div>
+            <p class="pricing-note">"Active projects" = STEP files you can work on at the same time. Archive a project
+                to free a slot — share links stay active.</p>
+        </div>
+    </section>
+
+    <!-- ═══ FINAL CTA ═════════════════════════════════ -->
+    <section class="final-cta">
+        <div class="zone-label" style="justify-content:center"><span class="zone-tag">ZONE E</span> Get started</div>
+        <h2>Stop sending<br /><span>dead geometry.</span></h2>
+        <p class="subtitle">Upload your first STEP file in under a minute. Free forever for 3 models — no credit card
+            required.</p>
+        <a href="/login" class="btn-primary" style="display:inline-block">Upload a STEP file →</a>
+    </section>
+
+    <!-- ═══ FOOTER ════════════════════════════════════ -->
+    <footer>
+        <div class="footer-left">
+            <span class="footer-logo">Onyx<span class="cad">CAD</span><span class="dot">.</span></span>
+            <span class="footer-tagline">Like PDFs for CAD</span>
+        </div>
+        <div class="footer-links">
+            <a href="/#features">Features</a>
+            <a href="/#pricing">Pricing</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+        </div>
+    </footer>
+
+</body>
+
+</html>
