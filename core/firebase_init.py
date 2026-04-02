@@ -27,11 +27,12 @@ def init_firebase():
             return
 
         # Option 1: Load from base64-encoded env var (for production/Railway)
-        cred_json = os.environ.get("FIREBASE_CREDENTIALS_JSON")
-        if cred_json:
+        cred_b64 = os.environ.get("FIREBASE_CREDENTIALS_JSON")
+        if cred_b64:
             import json
-            import tempfile
-            cred_dict = json.loads(cred_json)
+            import base64
+            cred_bytes = base64.b64decode(cred_b64)
+            cred_dict = json.loads(cred_bytes)
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
             _initialized = True
