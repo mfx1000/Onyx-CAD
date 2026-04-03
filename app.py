@@ -146,28 +146,6 @@ APP_VERSION = 1
 def index():
     return render_template("landing.html")
 
-@app.route('/debug-firebase')
-def debug_firebase():
-    import os
-    val = os.environ.get("FIREBASE_CREDENTIALS_JSON")
-    if val is None:
-        return "PROBLEM: env var is None - Railway not passing it"
-    
-    # Check for hidden characters
-    stripped = val.strip().replace('\n','').replace('\r','').replace(' ','')
-    
-    try:
-        import base64, json
-        decoded = base64.b64decode(stripped)
-        parsed = json.loads(decoded)
-        return f"SUCCESS: decoded OK - project_id: {parsed.get('project_id')} - type: {parsed.get('type')}"
-    except base64.binascii.Error as e:
-        return f"PROBLEM: base64 decode failed - {e} - first 50 chars: {repr(val[:50])}"
-    except json.JSONDecodeError as e:
-        return f"PROBLEM: JSON parse failed - {e}"
-    except Exception as e:
-        return f"PROBLEM: unexpected error - {type(e).__name__}: {e}"
-
 
 @app.route("/login")
 def login():
