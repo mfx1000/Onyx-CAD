@@ -364,7 +364,7 @@ def create_share_link(model_id):
     if not check_can_share(g.user_id):
         return jsonify({
             "error": "upgrade_required",
-            "message": "Sharing requires Pro plan ($79/month). Upgrade to unlock shareable links.",
+            "message": "Sharing requires Pro plan ($29/month). Upgrade to unlock shareable links.",
         }), 403
 
     model_row = get_model_by_id(model_id, g.user_id)

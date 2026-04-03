@@ -334,6 +334,7 @@
             .mobile-block { display: flex; }
         }
     </style>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="a5b06d4a-bfc2-4e49-aca7-9f359bd21a86"></script>
 </head>
 <body>
     <!-- Mobile block screen -->
@@ -631,14 +632,14 @@
             const portalSection = document.getElementById('portalSection');
             
             if (currentPlan === 'free') {
-                upgradeBtn.textContent = 'Upgrade — $79/mo';
+                upgradeBtn.textContent = 'Upgrade — $29/mo';
                 upgradeBtn.onclick = () => openCheckoutForPlan('pro');
                 upgradeBtn.style.display = 'block';
                 document.getElementById('upgradeSection').style.display = 'block';
                 if(modalUpgradeBtn) modalUpgradeBtn.onclick = () => openCheckoutForPlan('pro');
                 portalSection.style.display = 'none';
             } else if (currentPlan === 'pro') {
-                upgradeBtn.textContent = 'Upgrade — $199/mo';
+                upgradeBtn.textContent = 'Upgrade — $79/mo';
                 upgradeBtn.onclick = () => openCheckoutForPlan('growth');
                 upgradeBtn.style.display = 'block';
                 document.getElementById('upgradeSection').style.display = 'block';
