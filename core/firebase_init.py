@@ -29,15 +29,21 @@ def init_firebase():
         # Option 1: Load from base64-encoded env var (for production/Railway)
         cred_b64 = os.environ.get("FIREBASE_CREDENTIALS_JSON")
         if cred_b64:
+            logger.info("FIREBASE_CREDENTIALS_JSON found, length: %d", len(cred_b64))
             import json
             import base64
-            cred_bytes = base64.b64decode(cred_b64)
-            cred_dict = json.loads(cred_bytes)
-            cred = credentials.Certificate(cred_dict)
-            firebase_admin.initialize_app(cred)
-            _initialized = True
-            logger.info("Firebase Admin SDK initialized from env var (project: %s)", firebase_admin.get_app().project_id)
-            return
+            try:
+                cred_bytes = base64.b64decode(cred_b64)
+                cred_dict = json.loads(cred_bytes)
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+                _initialized = True
+                logger.info("Firebase Admin SDK initialized from env var (project: %s)", firebase_admin.get_app().project_id)
+                return
+            except Exception as e:
+                logger.error("Failed to decode FIREBASE_CREDENTIALS_JSON: %s", e)
+        else:
+            logger.warning("FIREBASE_CREDENTIALS_JSON not set in environment")
 
         # Option 2: Load from file path (for local development)
         cred_path = os.environ.get("FIREBASE_CREDENTIALS_PATH", "./firebase-credentials.json")
