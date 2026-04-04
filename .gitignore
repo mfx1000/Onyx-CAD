@@ -9,6 +9,9 @@ __pycache__/
 .env
 firebase-credentials.json
 
+# OG preview (personal use only)
+templates/og-preview.html
+
 # Documentation (keep only README.md)
 *.md
 !README.md

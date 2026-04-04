@@ -4,7 +4,48 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OnyxCAD — Annotate STEP files in your browser</title>
+    <title>OnyxCAD - Annotate STEP Files in Your Browser</title>
+    <meta name="description" content="Annotate STEP files with tolerances, threads, and colors directly on the 3D model. Share links with your factory. No 2D drawings, no CAD license required." />
+    <meta name="keywords" content="STEP file annotation, CAD annotation tool, 3D model annotation, STEP file viewer, manufacturing handoff, CAD to factory, tolerance annotation" />
+    <meta name="author" content="OnyxCAD" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://onyxcad.com" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://onyxcad.com" />
+    <meta property="og:title" content="OnyxCAD - Annotate STEP Files in Your Browser" />
+    <meta property="og:description" content="Annotate STEP files with tolerances, threads, and colors directly on the 3D model. Share links with your factory. No 2D drawings, no CAD license required." />
+    <meta property="og:image" content="https://vqkytghcaunhhaznftur.supabase.co/storage/v1/object/public/assets/onyxcad-preview-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="OnyxCAD - Annotate STEP files directly in your browser" />
+    <meta property="og:site_name" content="OnyxCAD" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://onyxcad.com" />
+    <meta name="twitter:title" content="OnyxCAD - Annotate STEP Files in Your Browser" />
+    <meta name="twitter:description" content="Annotate STEP files with tolerances, threads, and colors directly on the 3D model. Share links with your factory. No CAD license required." />
+    <meta name="twitter:image" content="https://vqkytghcaunhhaznftur.supabase.co/storage/v1/object/public/assets/onyxcad-preview-image.png" />
+    <meta name="twitter:image:alt" content="OnyxCAD - Annotate STEP files directly in your browser" />
+    <meta name="twitter:creator" content="@onyxcad" />
+    <meta name="twitter:site" content="@onyxcad" />
+
+    <!-- LinkedIn -->
+    <meta property="og:image:secure_url" content="https://vqkytghcaunhhaznftur.supabase.co/storage/v1/object/public/assets/onyxcad-preview-image.png" />
+
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#060a10" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <link rel="manifest" href="/static/site.webmanifest">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
         href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
@@ -1308,7 +1349,8 @@
             }
         }
     </style>
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="a5b06d4a-bfc2-4e49-aca7-9f359bd21a86"></script>
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="a5b06d4a-bfc2-4e49-aca7-9f359bd21a86"></script>
 </head>
 
 <body>
@@ -1339,7 +1381,7 @@
                 <h1>Your STEP file<br />is a <span class="accent">DEAD</span><br />document.</h1>
                 <!-- <h1>Click a face<br />Set the<span class="accent">tolerance</span><br />Send a link.</h1> -->
                 <p class="hero-sub">Annotate faces with tolerances, threads, and colors directly on the 3D model. Share
-                    a link. Your factory sees exactly what you mean — no 2D drawings, no back-and-forth.</p>
+                    a link. Your factory sees exactly what you mean, no 2D drawings, no back-and-forth.</p>
                 <div class="hero-ctas">
                     <a href="/login" class="btn-primary">Upload a STEP file free →</a>
                     <a href="#how" class="btn-secondary">See how it works</a>
@@ -1452,16 +1494,16 @@
             <h2>STEP files are geometry.<br /><span>Nothing else survives the handoff.</span></h2>
             <div class="before-after">
                 <div class="ba-card ba-before">
-                    <div class="ba-label">— Without OnyxCAD</div>
+                    <div class="ba-label">- Without OnyxCAD</div>
                     <div class="ba-item"><span class="ba-icon">×</span>Export STEP, create a separate 2D PDF drawing
                         manually</div>
-                    <div class="ba-item"><span class="ba-icon">×</span>Files drift out of sync — drawing says one thing,
+                    <div class="ba-item"><span class="ba-icon">×</span>Files drift out of sync, drawing says one thing,
                         model another</div>
-                    <div class="ba-item"><span class="ba-icon">×</span>Factory defaults to ±0.005″ because specs are
+                    <div class="ba-item"><span class="ba-icon">×</span>Factory defaults to +/-0.005 inch because specs are
                         buried in a PDF</div>
                     <div class="ba-item"><span class="ba-icon">×</span>Three email threads to clarify one hole callout
                     </div>
-                    <div class="ba-item"><span class="ba-icon">×</span>Annotations locked in SolidWorks — useless
+                    <div class="ba-item"><span class="ba-icon">×</span>Annotations locked in SolidWorks, useless
                         without a license</div>
                 </div>
                 <div class="vs-divider"><span>vs</span></div>
@@ -1469,7 +1511,7 @@
                     <div class="ba-label">+ With OnyxCAD</div>
                     <div class="ba-item"><span class="ba-icon">→</span>Click any face, assign a tolerance. Done in
                         seconds.</div>
-                    <div class="ba-item"><span class="ba-icon">→</span>Annotations bake into the STEP file — one
+                    <div class="ba-item"><span class="ba-icon">→</span>Annotations bake into the STEP file, one
                         document, always in sync</div>
                     <div class="ba-item"><span class="ba-icon">→</span>Share a link. Factory opens in browser, clicks
                         face, sees the spec.</div>
@@ -1488,26 +1530,26 @@
             <h2>Built for the handoff,<br /><span>not the design.</span></h2>
             <div class="features-grid">
                 <div class="feature-cell">
-                    <div class="feature-tag">F–01</div>
+                    <div class="feature-tag">F-01</div>
                     <div class="feature-icon">◎</div>
                     <h3>Face-level annotations</h3>
                     <p>Click any surface on the 3D model. Assign a tolerance, thread spec, color, or note. Every
-                        annotation is bound to that face's geometry hash — not an index that breaks on re-export.</p>
+                        annotation is bound to that face's geometry hash, not an index that breaks on re-export.</p>
                     <div class="feature-spec">tolerance · thread · color · notes</div>
                 </div>
                 <div class="feature-cell">
-                    <div class="feature-tag">F–02</div>
+                    <div class="feature-tag">F-02</div>
                     <div class="feature-icon">⬡</div>
                     <h3>Metadata survives export</h3>
                     <p>Three parallel injection strategies embed your annotations into the STEP file structure itself.
-                        Open the exported file in SolidWorks, Fusion, or any viewer — the metadata is there.</p>
+                        Open the exported file in SolidWorks, Fusion, or any viewer, the metadata is there.</p>
                     <div class="feature-spec">PROPERTY_DEFINITION · PRODUCT_DESC · COMMENT</div>
                 </div>
                 <div class="feature-cell">
-                    <div class="feature-tag">F–03</div>
+                    <div class="feature-tag">F-03</div>
                     <div class="feature-icon">↗</div>
                     <h3>Share with anyone</h3>
-                    <p>One link. No account required to view. Your factory, customer, contract reviewer — they click the
+                    <p>One link. No account required to view. Your factory, customer, contract reviewer, they click the
                         face, they see the spec. Read-only. Nothing to install.</p>
                     <div class="feature-spec">read-only · browser-native · no install</div>
                 </div>
@@ -1524,7 +1566,7 @@
                 <div class="step">
                     <div class="step-num">01</div>
                     <h3>Upload your STEP file</h3>
-                    <p>Drag and drop any STEP file. The geometry processes in seconds — hundreds of faces, automatically
+                    <p>Drag and drop any STEP file. The geometry processes in seconds, hundreds of faces, automatically
                         fingerprinted and ready to annotate.</p>
                 </div>
                 <div class="step">
@@ -1536,7 +1578,7 @@
                 <div class="step">
                     <div class="step-num">03</div>
                     <h3>Export or share a link</h3>
-                    <p>Export an annotated STEP file with metadata baked in. Or copy a share link — anyone with it can
+                    <p>Export an annotated STEP file with metadata baked in. Or copy a share link, anyone with it can
                         view the annotated model in a browser, no account needed.</p>
                 </div>
             </div>
@@ -1562,7 +1604,7 @@
                         <li>All annotation types</li>
                         <li>STEP export with metadata</li>
                         <li>Tolerance heat map</li>
-                        <li class="muted">Share links — not included</li>
+                        <li class="muted">Share links, not included</li>
                         <li class="muted">Persistent projects dashboard</li>
                     </ul>
                     <a href="/login" class="plan-cta">Start free →</a>
@@ -1605,7 +1647,7 @@
                 </div>
             </div>
             <p class="pricing-note">"Active projects" = STEP files you can work on at the same time. Archive a project
-                to free a slot — share links stay active.</p>
+                to free a slot, share links stay active.</p>
         </div>
     </section>
 
@@ -1613,7 +1655,7 @@
     <section class="final-cta">
         <div class="zone-label" style="justify-content:center"><span class="zone-tag">ZONE E</span> Get started</div>
         <h2>Stop sending<br /><span>dead geometry.</span></h2>
-        <p class="subtitle">Upload your first STEP file in under a minute. Free forever for 3 models — no credit card
+        <p class="subtitle">Upload your first STEP file in under a minute. Free forever for 3 models, no credit card
             required.</p>
         <a href="/login" class="btn-primary" style="display:inline-block">Upload a STEP file →</a>
     </section>
