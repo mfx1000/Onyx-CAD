@@ -5,14 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CAD & Manufacturing Blog - OnyxCAD</title>
-    <meta name="description" content="Learn how to annotate STEP files, communicate with manufacturers, and streamline your CAD workflow with OnyxCAD." />
+    <meta name="description" content="Practical guides for manufacturing engineers. Learn how to annotate STEP files, communicate with manufacturers, and streamline your CAD workflow." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://onyxcad.com/blog" />
     
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="CAD & Manufacturing Blog - OnyxCAD" />
-    <meta property="og:description" content="Learn how to annotate STEP files, communicate with manufacturers, and streamline your CAD workflow." />
+    <meta property="og:description" content="Practical guides for manufacturing engineers." />
     <meta property="og:url" content="https://onyxcad.com/blog" />
     <meta property="og:site_name" content="OnyxCAD" />
     <meta property="og:image" content="https://vqkytghcaunhhaznftur.supabase.co/storage/v1/object/public/assets/onyxcad-preview-image.png" />
@@ -33,22 +33,14 @@
             --text-secondary: #475569;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --border-strong: #cbd5e1;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
             --radius: 12px;
             --radius-sm: 8px;
         }
         
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
-        
-        html {
-            scroll-behavior: smooth
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+        html { scroll-behavior: smooth }
         
         body {
             font-family: 'Source Serif 4', Georgia, serif;
@@ -83,19 +75,12 @@
             font-weight: 500;
             font-size: 22px;
             color: var(--text-primary);
-            text-decoration: none;
-            letter-spacing: -0.02em
+            text-decoration: none
         }
         
-        .logo span {
-            color: var(--blue)
-        }
+        .logo span { color: var(--blue) }
         
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 24px
-        }
+        nav { display: flex; align-items: center; gap: 24px }
         
         nav a {
             font-family: 'Inter', sans-serif;
@@ -106,22 +91,16 @@
             transition: color 0.2s
         }
         
-        nav a:hover {
-            color: var(--blue)
-        }
+        nav a:hover { color: var(--blue) }
         
         nav a.cta {
             background: var(--blue);
             color: white;
             padding: 10px 18px;
-            border-radius: var(--radius-sm);
-            transition: background 0.2s
+            border-radius: var(--radius-sm)
         }
         
-        nav a.cta:hover {
-            background: var(--blue-dark);
-            color: white
-        }
+        nav a.cta:hover { background: var(--blue-dark); color: white }
         
         /* Hero */
         .hero {
@@ -131,10 +110,7 @@
             text-align: center
         }
         
-        .hero-inner {
-            max-width: 680px;
-            margin: 0 auto
-        }
+        .hero-inner { max-width: 680px; margin: 0 auto }
         
         h1 {
             font-family: 'Source Serif 4', Georgia, serif;
@@ -142,23 +118,17 @@
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 16px;
-            line-height: 1.1;
-            letter-spacing: -0.02em
+            line-height: 1.1
         }
         
         .hero p {
             font-family: 'Inter', sans-serif;
             font-size: 18px;
-            color: var(--text-muted);
-            line-height: 1.6
+            color: var(--text-muted)
         }
         
         /* Posts */
-        main {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 48px 24px 80px
-        }
+        main { max-width: 800px; margin: 0 auto; padding: 48px 24px 80px }
         
         .posts-header {
             font-family: 'Inter', sans-serif;
@@ -170,11 +140,7 @@
             margin-bottom: 32px
         }
         
-        .posts-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 24px
-        }
+        .posts-grid { display: flex; flex-direction: column; gap: 24px }
         
         .post-card {
             background: var(--bg-card);
@@ -192,14 +158,11 @@
             box-shadow: var(--shadow-md)
         }
         
-        .post-meta {
+        .post-date {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 12px;
             color: var(--text-muted);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px
+            margin-bottom: 12px
         }
         
         .post-card h2 {
@@ -216,25 +179,10 @@
             font-size: 15px;
             color: var(--text-muted);
             line-height: 1.6;
-            margin-bottom: 16px
+            margin: 0
         }
         
-        .post-card .keywords {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px
-        }
-        
-        .keyword-tag {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            color: var(--text-muted);
-            background: var(--bg-subtle);
-            padding: 4px 10px;
-            border-radius: 20px
-        }
-        
-        /* Empty State */
+        /* Empty */
         .empty {
             text-align: center;
             padding: 60px 24px;
@@ -270,32 +218,13 @@
             color: var(--text-muted)
         }
         
-        footer a {
-            color: var(--blue);
-            text-decoration: none
-        }
+        footer a { color: var(--blue); text-decoration: none }
         
-        footer a:hover {
-            text-decoration: underline
-        }
-        
-        /* Responsive */
         @media(max-width: 768px) {
-            h1 {
-                font-size: 32px
-            }
-            
-            .hero {
-                padding: 48px 24px
-            }
-            
-            .post-card {
-                padding: 24px
-            }
-            
-            nav {
-                display: none
-            }
+            h1 { font-size: 32px }
+            .hero { padding: 48px 24px }
+            .post-card { padding: 24px }
+            nav { display: none }
         }
     </style>
 </head>
@@ -316,7 +245,7 @@
     <section class="hero">
         <div class="hero-inner">
             <h1>CAD & Manufacturing Blog</h1>
-            <p>Practical guides for engineering workflows. Learn how to annotate STEP files, communicate with manufacturers, and streamline your CAD-to-factory process.</p>
+            <p>Practical guides for engineering workflows. Learn how to annotate STEP files and communicate with manufacturers.</p>
         </div>
     </section>
     
@@ -327,21 +256,11 @@
         <div class="posts-grid">
             {% for post in posts %}
             <a href="/blog/{{ post.slug }}" class="post-card">
-                <div class="post-meta">
-                    <span>{{ post.published_at.strftime('%B %d, %Y') if post.published_at else 'Published' }}</span>
-                    {% if post.views %}
-                    <span>&middot; {{ post.views }} views</span>
-                    {% endif %}
+                <div class="post-date">
+                    {{ post.published_at.strftime('%B %d, %Y') if post.published_at else 'Published' }}
                 </div>
                 <h2>{{ post.title }}</h2>
                 <p class="excerpt">{{ post.meta_description }}</p>
-                {% if post.keywords %}
-                <div class="keywords">
-                    {% for kw in post.keywords[:4] %}
-                    <span class="keyword-tag">{{ kw }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
             </a>
             {% endfor %}
         </div>

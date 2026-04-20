@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ post.title }} - OnyxCAD Blog</title>
     <meta name="description" content="{{ post.meta_description }}" />
-    <meta name="keywords" content="{{ post.keywords|join(', ') }}" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://onyxcad.com/blog/{{ post.slug }}" />
     
@@ -30,20 +29,9 @@
         "@type": "Article",
         "headline": "{{ post.title }}",
         "description": "{{ post.meta_description }}",
-        "author": {
-            "@type": "Organization",
-            "name": "OnyxCAD"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "OnyxCAD",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://onyxcad.com/favicon-32x32.png"
-            }
-        },
-        "datePublished": "{{ post.published_at.isoformat() if post.published_at else '' }}",
-        "dateModified": "{{ post.updated_at.isoformat() if post.updated_at else '' }}"
+        "author": {"@type": "Organization", "name": "OnyxCAD"},
+        "publisher": {"@type": "Organization", "name": "OnyxCAD"},
+        "datePublished": "{{ post.published_at.isoformat() if post.published_at else '' }}"
     }
     </script>
     
@@ -70,15 +58,8 @@
             --radius-sm: 8px;
         }
         
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
-        
-        html {
-            scroll-behavior: smooth
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+        html { scroll-behavior: smooth }
         
         body {
             font-family: 'Source Serif 4', Georgia, serif;
@@ -86,8 +67,7 @@
             color: var(--text-secondary);
             line-height: 1.75;
             font-size: 18px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale
+            -webkit-font-smoothing: antialiased
         }
         
         /* Header */
@@ -114,19 +94,12 @@
             font-weight: 500;
             font-size: 22px;
             color: var(--text-primary);
-            text-decoration: none;
-            letter-spacing: -0.02em
+            text-decoration: none
         }
         
-        .logo span {
-            color: var(--blue)
-        }
+        .logo span { color: var(--blue) }
         
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 24px
-        }
+        nav { display: flex; align-items: center; gap: 24px }
         
         nav a {
             font-family: 'Inter', sans-serif;
@@ -137,22 +110,16 @@
             transition: color 0.2s
         }
         
-        nav a:hover {
-            color: var(--blue)
-        }
+        nav a:hover { color: var(--blue) }
         
         nav a.cta {
             background: var(--blue);
             color: white;
             padding: 10px 18px;
-            border-radius: var(--radius-sm);
-            transition: background 0.2s
+            border-radius: var(--radius-sm)
         }
         
-        nav a.cta:hover {
-            background: var(--blue-dark);
-            color: white
-        }
+        nav a.cta:hover { background: var(--blue-dark); color: white }
         
         /* Main Content */
         main {
@@ -170,21 +137,11 @@
         }
         
         /* Post Meta */
-        .post-meta {
+        .post-date {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 13px;
             color: var(--text-muted);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px
-        }
-        
-        .post-meta .dot {
-            width: 4px;
-            height: 4px;
-            background: var(--border-strong);
-            border-radius: 50%
+            margin-bottom: 16px
         }
         
         h1 {
@@ -193,48 +150,20 @@
             font-weight: 600;
             color: var(--text-primary);
             line-height: 1.2;
-            margin-bottom: 24px;
-            letter-spacing: -0.02em
-        }
-        
-        /* Keywords */
-        .keywords {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 32px;
-            padding-bottom: 32px;
-            border-bottom: 1px solid var(--border)
-        }
-        
-        .keyword-tag {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 12px;
-            color: var(--text-muted);
-            background: var(--bg-subtle);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border)
+            margin-bottom: 24px
         }
         
         /* Content Typography */
-        .content {
-            font-family: 'Source Serif 4', Georgia, serif;
-            color: var(--text-secondary)
-        }
+        .content { font-family: 'Source Serif 4', Georgia, serif; color: var(--text-secondary) }
         
-        .content p {
-            margin-bottom: 24px;
-            line-height: 1.8
-        }
+        .content p { margin-bottom: 24px; line-height: 1.8 }
         
         .content h2 {
             font-family: 'Source Serif 4', Georgia, serif;
             font-size: 26px;
             font-weight: 600;
             color: var(--text-primary);
-            margin: 48px 0 20px;
-            line-height: 1.3
+            margin: 48px 0 20px
         }
         
         .content h3 {
@@ -245,30 +174,14 @@
             margin: 32px 0 16px
         }
         
-        .content ul, .content ol {
-            margin: 0 0 24px 24px
-        }
-        
-        .content li {
-            margin-bottom: 12px;
-            line-height: 1.7
-        }
-        
-        .content strong {
-            color: var(--text-primary);
-            font-weight: 600
-        }
+        .content ul, .content ol { margin: 0 0 24px 24px }
+        .content li { margin-bottom: 12px; line-height: 1.7 }
+        .content strong { color: var(--text-primary); font-weight: 600 }
         
         .content a {
             color: var(--blue);
             text-decoration: underline;
-            text-decoration-color: var(--blue);
-            text-underline-offset: 2px;
-            transition: text-decoration-color 0.2s
-        }
-        
-        .content a:hover {
-            text-decoration-color: transparent
+            text-underline-offset: 2px
         }
         
         .content blockquote {
@@ -284,23 +197,7 @@
             font-size: 15px;
             background: var(--bg-subtle);
             padding: 3px 8px;
-            border-radius: 4px;
-            color: var(--text-primary)
-        }
-        
-        .content pre {
-            background: var(--text-primary);
-            color: #e2e8f0;
-            border-radius: var(--radius-sm);
-            padding: 24px;
-            overflow-x: auto;
-            margin: 32px 0
-        }
-        
-        .content pre code {
-            background: none;
-            padding: 0;
-            color: inherit
+            border-radius: 4px
         }
         
         /* CTA Box */
@@ -336,15 +233,12 @@
             font-weight: 500;
             padding: 14px 28px;
             border-radius: var(--radius-sm);
-            text-decoration: none;
-            transition: background 0.2s
+            text-decoration: none
         }
         
-        .cta-box a:hover {
-            background: var(--blue-dark)
-        }
+        .cta-box a:hover { background: var(--blue-dark) }
         
-        /* Related Posts */
+        /* Related */
         .related {
             margin-top: 64px;
             padding-top: 48px;
@@ -358,10 +252,7 @@
             margin-bottom: 24px
         }
         
-        .related-grid {
-            display: grid;
-            gap: 20px
-        }
+        .related-grid { display: grid; gap: 20px }
         
         .related-card {
             background: var(--bg-card);
@@ -406,32 +297,14 @@
             color: var(--text-muted)
         }
         
-        footer a {
-            color: var(--blue);
-            text-decoration: none
-        }
-        
-        footer a:hover {
-            text-decoration: underline
-        }
+        footer a { color: var(--blue); text-decoration: none }
         
         /* Responsive */
         @media(max-width: 768px) {
-            h1 {
-                font-size: 28px
-            }
-            
-            article {
-                padding: 28px
-            }
-            
-            .content h2 {
-                font-size: 22px
-            }
-            
-            nav {
-                display: none
-            }
+            h1 { font-size: 28px }
+            article { padding: 28px }
+            .content h2 { font-size: 22px }
+            nav { display: none }
         }
     </style>
 </head>
@@ -451,36 +324,26 @@
     
     <main>
         <article>
-            <div class="post-meta">
-                <span>{{ post.published_at.strftime('%B %d, %Y') if post.published_at else 'Published' }}</span>
-                <span class="dot"></span>
-                <span>{{ post.views }} views</span>
+            <div class="post-date">
+                {{ post.published_at.strftime('%B %d, %Y') if post.published_at else 'Published' }}
             </div>
             
             <h1>{{ post.title }}</h1>
-            
-            {% if post.keywords %}
-            <div class="keywords">
-                {% for kw in post.keywords %}
-                <span class="keyword-tag">{{ kw }}</span>
-                {% endfor %}
-            </div>
-            {% endif %}
             
             <div class="content">
                 {{ post.content|safe }}
             </div>
             
             <div class="cta-box">
-                <h3>Ready to Try OnyxCAD?</h3>
-                <p>Start annotating your STEP files for free. No credit card required.</p>
-                <a href="/login">Upload a STEP File Free</a>
+                <h3>Try OnyxCAD Free</h3>
+                <p>Annotate your STEP files in minutes. No credit card required.</p>
+                <a href="/login">Get Started Free</a>
             </div>
         </article>
         
         {% if recent_posts %}
         <section class="related">
-            <h2>Related Articles</h2>
+            <h2>More Guides</h2>
             <div class="related-grid">
                 {% for p in recent_posts %}
                 <a href="/blog/{{ p.slug }}" class="related-card">

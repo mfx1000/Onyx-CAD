@@ -3,8 +3,6 @@ Blog content system — stores blog posts in Firestore.
 Used for SEO content generation and automated publishing.
 """
 import uuid
-import os
-from datetime import datetime
 from google.cloud import firestore
 from firebase_admin import firestore as fs_admin
 from core.firebase_init import get_firestore
@@ -17,7 +15,6 @@ def create_post(
     slug: str,
     content: str,
     meta_description: str = "",
-    keywords: list[str] = None,
     status: str = "draft",
 ) -> str:
     """Create a new blog post. Returns post ID."""
@@ -28,12 +25,10 @@ def create_post(
         "slug": slug,
         "content": content,
         "meta_description": meta_description,
-        "keywords": keywords or [],
         "status": status,
         "created_at": fs_admin.SERVER_TIMESTAMP,
         "updated_at": fs_admin.SERVER_TIMESTAMP,
         "published_at": None,
-        "views": 0,
     })
     return post_id
 
@@ -97,16 +92,6 @@ def publish_post(post_id: str):
         "published_at": fs_admin.SERVER_TIMESTAMP,
         "updated_at": fs_admin.SERVER_TIMESTAMP,
     })
-
-
-def increment_views(post_id: str):
-    """Increment view count for a post."""
-    db = get_firestore()
-    doc_ref = db.collection(COLL_POSTS).document(post_id)
-    doc = doc_ref.get()
-    if doc.exists:
-        current_views = doc.to_dict().get("views", 0)
-        doc_ref.update({"views": current_views + 1})
 
 
 def delete_post(post_id: str):

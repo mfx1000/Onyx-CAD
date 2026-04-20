@@ -1412,7 +1412,6 @@ from core.content import (
     get_post_by_slug,
     get_post_by_id,
     list_posts,
-    increment_views,
     get_all_slugs,
 )
 
@@ -1437,11 +1436,6 @@ def blog_post(slug):
     
     if not post:
         return render_template("404.html"), 404
-    
-    try:
-        increment_views(post.get("id"))
-    except Exception as e:
-        pass  # View increment failure shouldn't break page
     
     try:
         recent_posts = list_posts(limit=5, status="published")
