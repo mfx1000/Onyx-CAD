@@ -4,12 +4,13 @@ OnyxCAD SEO Content Generator CLI
 
 Usage:
     python generate_content.py single   # Generate and publish one post
-    python generate_content.py daily   # Generate and publish DAILY_POST_COUNT posts (default: 2)
+    python generate_content.py daily   # Generate and publish posts (default: 2)
     python generate_content.py stats    # Show content statistics
 """
 import asyncio
 import sys
 import os
+import json
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -57,7 +58,7 @@ async def main():
         print(f"  Total posts: {stats['total_posts']}")
         print(f"  Published:   {stats['published']}")
         print(f"  Drafts:      {stats['drafts']}")
-        print(f"  Total views: {stats['total_views']}")
+        print(f"  Keywords:    {stats['keywords_available']}")
         
     elif mode == "list":
         posts = content.list_posts(limit=20, status="published")
@@ -65,8 +66,14 @@ async def main():
         for p in posts:
             print(f"  - {p.get('title')}")
             print(f"    /blog/{p.get('slug')}")
-            print(f"    Views: {p.get('views', 0)}")
             print()
+            
+    elif mode == "keywords":
+        from core.keyword_researcher import get_all_keywords
+        keywords = get_all_keywords()
+        print(f"Keywords available ({len(keywords)}):")
+        for kw in keywords:
+            print(f"  - {kw}")
             
     else:
         print(__doc__)
@@ -75,6 +82,7 @@ async def main():
         print("  python generate_content.py daily    # Run daily batch")
         print("  python generate_content.py stats   # View statistics")
         print("  python generate_content.py list    # List published posts")
+        print("  python generate_content.py keywords # List all keywords")
 
 
 if __name__ == "__main__":
