@@ -94,6 +94,18 @@ werkzeug_logger.setLevel(logging.INFO)
 
 app.logger.info("Flask server starting up")
 
+# ── Jinja filters for templates ─────────────────────────────────────────────
+@app.template_filter('datetime')
+def format_datetime(value):
+    """Format datetime for templates - handles Firestore timestamps."""
+    if value is None:
+        return ""
+    if hasattr(value, 'strftime'):
+        return value.strftime('%B %d, %Y')
+    if hasattr(value, 'isoformat'):
+        return value.isoformat()
+    return str(value)
+
 
 # ── Error handlers ────────────────────────────────────────────────────────────
 
@@ -1392,6 +1404,97 @@ def polar_webhook():
 
     # Always return 200 to prevent Polar from retrying
     return jsonify({"ok": True}), 200
+
+
+# ── Blog Routes ────────────────────────────────────────────────────────────
+
+from core.content import (
+    get_post_by_slug,
+    get_post_by_id,
+    list_posts,
+    increment_views,
+    get_all_slugs,
+)
+
+@app.route("/blog")
+def blog_index():
+    """Blog listing page with all published posts."""
+    posts = list_posts(limit=50, status="published")
+    return render_template("blog_index.html", posts=posts)
+
+@app.route("/blog/<slug>")
+def blog_post(slug):
+    """Individual blog post page."""
+    post = get_post_by_slug(slug)
+    if not post:
+        return render_template("404.html"), 404
+    
+    increment_views(post.get("id"))
+    
+    recent_posts = list_posts(limit=5, status="published")
+    recent_posts = [p for p in recent_posts if p.get("id") != post.get("id")][:3]
+    
+    return render_template(
+        "blog_post.html",
+        post=post,
+        recent_posts=recent_posts,
+    )
+
+@app.route("/sitemap.xml")
+def sitemap():
+    """Dynamic sitemap for SEO."""
+    from flask import Response
+    import xml.etree.ElementTree as ET
+    
+    slugs = get_all_slugs()
+    host = request.host_url.rstrip("/")
+    
+    urlset = ET.Element("urlset")
+    urlset.set("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9")
+    
+    for slug in slugs:
+        url = ET.SubElement(urlset, "loc")
+        url.text = f"{host}/blog/{slug}"
+    
+    sitemap_xml = ET.tostring(urlset, encoding="unicode")
+    return Response(sitemap_xml, mimetype="application/xml")
+
+@app.route("/robots.txt")
+def robots():
+    """ robots.txt for SEO."""
+    from flask import Response
+    host = request.host_url.rstrip("/")
+    content = f"""User-agent: *
+Allow: /
+Sitemap: {host}/sitemap.xml
+"""
+    return Response(content, mimetype="text/plain")
+
+# ── Manual Content Generation (Admin) ───────────────────────────────
+
+@app.route("/api/admin/generate-post", methods=["POST"])
+@require_auth
+def api_generate_post():
+    """Manually trigger post generation. Admin only."""
+    from core.seo_generator import generate_and_publish_post, bulk_generate_posts, get_content_stats
+    
+    data = request.get_json() or {}
+    count = data.get("count", 1)
+    
+    if count == 1:
+        result = await generate_and_publish_post()
+        return jsonify({"result": result})
+    else:
+        results = await bulk_generate_posts(count=count)
+        return jsonify({"results": results, "count": count})
+
+
+@app.route("/api/admin/content-stats", methods=["GET"])
+@require_auth
+def api_content_stats():
+    """Get content generation statistics."""
+    from core.seo_generator import get_content_stats
+    return jsonify(get_content_stats())
 
 
 # ── Misc ─────────────────────────────────────────────────────────────────────

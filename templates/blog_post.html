@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ post.title }} - OnyxCAD Blog</title>
+    <meta name="description" content="{{ post.meta_description }}" />
+    <meta name="keywords" content="{{ post.keywords|join(', ') }}" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://onyxcad.com/blog/{{ post.slug }}" />
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="{{ post.title }}" />
+    <meta property="og:description" content="{{ post.meta_description }}" />
+    <meta property="og:url" content="https://onyxcad.com/blog/{{ post.slug }}" />
+    <meta property="og:site_name" content="OnyxCAD" />
+    <meta property="og:image" content="https://vqkytghcaunhhaznftur.supabase.co/storage/v1/object/public/assets/onyxcad-preview-image.png" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ post.title }}" />
+    <meta name="twitter:description" content="{{ post.meta_description }}" />
+    
+    <!-- Article Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "{{ post.title }}",
+        "description": "{{ post.meta_description }}",
+        "author": {
+            "@type": "Organization",
+            "name": "OnyxCAD"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "OnyxCAD",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://onyxcad.com/favicon-32x32.png"
+            }
+        },
+        "datePublished": "{{ post.published_at.isoformat() if post.published_at else '' }}",
+        "dateModified": "{{ post.updated_at.isoformat() if post.updated_at else '' }}"
+    }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --bg-page: #f8f9fc;
+            --bg-card: #ffffff;
+            --bg-subtle: #f1f3f8;
+            --blue: #2563eb;
+            --blue-dark: #1d4ed8;
+            --blue-light: #dbeafe;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+        
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        
+        html {
+            scroll-behavior: smooth
+        }
+        
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--bg-page);
+            color: var(--text-secondary);
+            line-height: 1.75;
+            font-size: 18px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale
+        }
+        
+        /* Header */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px)
+        }
+        
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+        
+        .logo {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 500;
+            font-size: 22px;
+            color: var(--text-primary);
+            text-decoration: none;
+            letter-spacing: -0.02em
+        }
+        
+        .logo span {
+            color: var(--blue)
+        }
+        
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 24px
+        }
+        
+        nav a {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s
+        }
+        
+        nav a:hover {
+            color: var(--blue)
+        }
+        
+        nav a.cta {
+            background: var(--blue);
+            color: white;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            transition: background 0.2s
+        }
+        
+        nav a.cta:hover {
+            background: var(--blue-dark);
+            color: white
+        }
+        
+        /* Main Content */
+        main {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 24px 80px
+        }
+        
+        article {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 48px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border)
+        }
+        
+        /* Post Meta */
+        .post-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+        
+        .post-meta .dot {
+            width: 4px;
+            height: 4px;
+            background: var(--border-strong);
+            border-radius: 50%
+        }
+        
+        h1 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 42px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em
+        }
+        
+        /* Keywords */
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border)
+        }
+        
+        .keyword-tag {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-subtle);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border)
+        }
+        
+        /* Content Typography */
+        .content {
+            font-family: 'Source Serif 4', Georgia, serif;
+            color: var(--text-secondary)
+        }
+        
+        .content p {
+            margin-bottom: 24px;
+            line-height: 1.8
+        }
+        
+        .content h2 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 48px 0 20px;
+            line-height: 1.3
+        }
+        
+        .content h3 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 32px 0 16px
+        }
+        
+        .content ul, .content ol {
+            margin: 0 0 24px 24px
+        }
+        
+        .content li {
+            margin-bottom: 12px;
+            line-height: 1.7
+        }
+        
+        .content strong {
+            color: var(--text-primary);
+            font-weight: 600
+        }
+        
+        .content a {
+            color: var(--blue);
+            text-decoration: underline;
+            text-decoration-color: var(--blue);
+            text-underline-offset: 2px;
+            transition: text-decoration-color 0.2s
+        }
+        
+        .content a:hover {
+            text-decoration-color: transparent
+        }
+        
+        .content blockquote {
+            border-left: 4px solid var(--blue);
+            padding: 4px 0 4px 24px;
+            margin: 32px 0;
+            font-style: italic;
+            color: var(--text-muted)
+        }
+        
+        .content code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 15px;
+            background: var(--bg-subtle);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: var(--text-primary)
+        }
+        
+        .content pre {
+            background: var(--text-primary);
+            color: #e2e8f0;
+            border-radius: var(--radius-sm);
+            padding: 24px;
+            overflow-x: auto;
+            margin: 32px 0
+        }
+        
+        .content pre code {
+            background: none;
+            padding: 0;
+            color: inherit
+        }
+        
+        /* CTA Box */
+        .cta-box {
+            background: linear-gradient(135deg, var(--blue-light), #eff6ff);
+            border: 1px solid var(--blue);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin: 48px 0;
+            text-align: center
+        }
+        
+        .cta-box h3 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 24px;
+            color: var(--text-primary);
+            margin-bottom: 12px
+        }
+        
+        .cta-box p {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: var(--text-secondary)
+        }
+        
+        .cta-box a {
+            display: inline-block;
+            background: var(--blue);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: background 0.2s
+        }
+        
+        .cta-box a:hover {
+            background: var(--blue-dark)
+        }
+        
+        /* Related Posts */
+        .related {
+            margin-top: 64px;
+            padding-top: 48px;
+            border-top: 1px solid var(--border)
+        }
+        
+        .related h2 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 22px;
+            color: var(--text-primary);
+            margin-bottom: 24px
+        }
+        
+        .related-grid {
+            display: grid;
+            gap: 20px
+        }
+        
+        .related-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 24px;
+            text-decoration: none;
+            transition: all 0.2s
+        }
+        
+        .related-card:hover {
+            border-color: var(--blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md)
+        }
+        
+        .related-card h3 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 8px
+        }
+        
+        .related-card p {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 40px 24px;
+            text-align: center
+        }
+        
+        footer p {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--text-muted)
+        }
+        
+        footer a {
+            color: var(--blue);
+            text-decoration: none
+        }
+        
+        footer a:hover {
+            text-decoration: underline
+        }
+        
+        /* Responsive */
+        @media(max-width: 768px) {
+            h1 {
+                font-size: 28px
+            }
+            
+            article {
+                padding: 28px
+            }
+            
+            .content h2 {
+                font-size: 22px
+            }
+            
+            nav {
+                display: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="/" class="logo">Onyx<span>CAD</span></a>
+            <nav>
+                <a href="/#features">Features</a>
+                <a href="/#pricing">Pricing</a>
+                <a href="/blog">Blog</a>
+                <a href="/login" class="cta">Get Started</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <article>
+            <div class="post-meta">
+                <span>{{ post.published_at.strftime('%B %d, %Y') if post.published_at else 'Published' }}</span>
+                <span class="dot"></span>
+                <span>{{ post.views }} views</span>
+            </div>
+            
+            <h1>{{ post.title }}</h1>
+            
+            {% if post.keywords %}
+            <div class="keywords">
+                {% for kw in post.keywords %}
+                <span class="keyword-tag">{{ kw }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="content">
+                {{ post.content|safe }}
+            </div>
+            
+            <div class="cta-box">
+                <h3>Ready to Try OnyxCAD?</h3>
+                <p>Start annotating your STEP files for free. No credit card required.</p>
+                <a href="/login">Upload a STEP File Free</a>
+            </div>
+        </article>
+        
+        {% if recent_posts %}
+        <section class="related">
+            <h2>Related Articles</h2>
+            <div class="related-grid">
+                {% for p in recent_posts %}
+                <a href="/blog/{{ p.slug }}" class="related-card">
+                    <h3>{{ p.title }}</h3>
+                    <p>{{ p.meta_description[:100] }}...</p>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 OnyxCAD. <a href="/privacy">Privacy</a> &middot; <a href="/terms">Terms</a></p>
+    </footer>
+</body>
+
+</html>
