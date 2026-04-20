@@ -14,7 +14,7 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 def call_llm(
     prompt: str,
     model: str = "minimax/minimax-m2.5:free",
-    max_tokens: int = 5000,
+    max_tokens: int = 7500,
     temperature: float = 0.7,
 ) -> Optional[str]:
     """
@@ -82,7 +82,7 @@ def generate_with_minimax(prompt: str) -> Optional[str]:
     return call_llm(
         prompt=prompt,
         model="minimax/minimax-m2.5:free",
-        max_tokens=5000,  # Increased for longer content
+        max_tokens=7500,
         temperature=0.7,
     )
 
