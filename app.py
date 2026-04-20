@@ -1479,6 +1479,38 @@ Sitemap: {host}/sitemap.xml
 """
     return Response(content, mimetype="text/plain")
 
+# ── Cron / Automation ───────────────────────────────────────────────
+
+@app.route("/api/cron", methods=["POST"])
+def cron_generate():
+    """
+    Triggered by external cron service to generate blog post.
+    Protected by CRON_SECRET header.
+    """
+    from core.seo_generator import generate_and_publish_post
+    import asyncio
+    
+    secret = request.headers.get("X-Cron-Secret")
+    expected = os.environ.get("CRON_SECRET", "")
+    
+    if not secret or secret != expected:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        result = asyncio.run(generate_and_publish_post())
+        if result.get("success"):
+            return jsonify({
+                "ok": True,
+                "title": result.get("title"),
+                "slug": result.get("slug")
+            })
+        else:
+            return jsonify({"error": result.get("error")}), 500
+    except Exception as e:
+        app.logger.error(f"Cron generation failed: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 # ── Misc ─────────────────────────────────────────────────────────────────────
 
 @app.route("/mockups")
