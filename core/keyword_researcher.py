@@ -1,9 +1,15 @@
 """
-Keyword research module — curated conversion-focused keywords for CAD/manufacturing.
+Keyword research module — informational and educational keywords for CAD/manufacturing.
+
+These keywords target people actively searching for solutions to real problems.
+Each keyword represents a genuine need/question the reader has.
 """
 import random
 from typing import Generator
 
+
+# INFORMATIVE KEYWORDS - Topics where helpful content educates the reader
+# These represent real questions engineers have that deserve thorough answers
 
 CONVERSION_KEYWORDS = [
     # How to share/communicate with manufacturers
@@ -66,16 +72,23 @@ CONVERSION_KEYWORDS = [
     "CNC machining CAD annotation",
     "sheet metal fabrication CAD markup",
     "injection molding CAD annotations",
-    "3D printing model annotation",
-    "rapid prototyping CAD files",
+    "prototype manufacturing CAD",
     "hardware startup CAD workflow",
     "contract manufacturer CAD handoff",
-    "prototype manufacturing CAD",
+    
+    # Educational topics (not product-specific)
+    "understanding STEP files and their limitations",
+    "what is GD&T and why it matters",
+    "how tolerances affect manufacturing cost",
+    "why 2D drawings cause manufacturing errors",
+    "communicating design intent to manufacturers",
+    "common CAD to manufacturing mistakes",
+    "best practices for CAD handoff",
 ]
 
 
+# Additional educational keywords for variety
 USER_INTENT_KEYWORDS = [
-    # Search phrases people actually use
     "how do i share a STEP file with my manufacturer",
     "view STEP file without SolidWorks",
     "best free CAD viewer no installation",
@@ -89,8 +102,11 @@ USER_INTENT_KEYWORDS = [
     "STEP file viewer no download",
     "view CAD files in browser",
     "share CAD with contract manufacturer",
-    "no CAD license need viewer",
+    "no CAD license needed viewer",
     "free STEP viewer browser",
+    "what is a STEP file used for",
+    "how do i annotate a 3D model",
+    "sending CAD files to manufacturers",
 ]
 
 
@@ -107,10 +123,10 @@ def get_keyword_queue() -> Generator[tuple[str, str], None, None]:
     all_keywords = []
     
     for kw in CONVERSION_KEYWORDS:
-        all_keywords.append((kw, "conversion"))
+        all_keywords.append((kw, "informational"))
     
     for kw in USER_INTENT_KEYWORDS:
-        all_keywords.append((kw, "user_intent"))
+        all_keywords.append((kw, "educational"))
     
     random.shuffle(all_keywords)
     
@@ -124,7 +140,6 @@ def get_next_keyword() -> tuple[str, str]:
     try:
         return next(gen)
     except StopIteration:
-        # If we run out, reshuffle and start again
         random.shuffle(CONVERSION_KEYWORDS)
         random.shuffle(USER_INTENT_KEYWORDS)
         return get_next_keyword()
