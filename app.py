@@ -1419,20 +1419,35 @@ from core.content import (
 @app.route("/blog")
 def blog_index():
     """Blog listing page with all published posts."""
-    posts = list_posts(limit=50, status="published")
+    try:
+        posts = list_posts(limit=50, status="published")
+    except Exception as e:
+        app.logger.warning(f"Blog fetch failed (Firebase not configured): {e}")
+        posts = []
     return render_template("blog_index.html", posts=posts)
 
 @app.route("/blog/<slug>")
 def blog_post(slug):
     """Individual blog post page."""
-    post = get_post_by_slug(slug)
+    try:
+        post = get_post_by_slug(slug)
+    except Exception as e:
+        app.logger.warning(f"Blog post fetch failed: {e}")
+        post = None
+    
     if not post:
         return render_template("404.html"), 404
     
-    increment_views(post.get("id"))
+    try:
+        increment_views(post.get("id"))
+    except Exception as e:
+        pass  # View increment failure shouldn't break page
     
-    recent_posts = list_posts(limit=5, status="published")
-    recent_posts = [p for p in recent_posts if p.get("id") != post.get("id")][:3]
+    try:
+        recent_posts = list_posts(limit=5, status="published")
+        recent_posts = [p for p in recent_posts if p.get("id") != post.get("id")][:3]
+    except Exception as e:
+        recent_posts = []
     
     return render_template(
         "blog_post.html",
@@ -1469,33 +1484,6 @@ Allow: /
 Sitemap: {host}/sitemap.xml
 """
     return Response(content, mimetype="text/plain")
-
-# ── Manual Content Generation (Admin) ───────────────────────────────
-
-@app.route("/api/admin/generate-post", methods=["POST"])
-@require_auth
-def api_generate_post():
-    """Manually trigger post generation. Admin only."""
-    from core.seo_generator import generate_and_publish_post, bulk_generate_posts, get_content_stats
-    
-    data = request.get_json() or {}
-    count = data.get("count", 1)
-    
-    if count == 1:
-        result = await generate_and_publish_post()
-        return jsonify({"result": result})
-    else:
-        results = await bulk_generate_posts(count=count)
-        return jsonify({"results": results, "count": count})
-
-
-@app.route("/api/admin/content-stats", methods=["GET"])
-@require_auth
-def api_content_stats():
-    """Get content generation statistics."""
-    from core.seo_generator import get_content_stats
-    return jsonify(get_content_stats())
-
 
 # ── Misc ─────────────────────────────────────────────────────────────────────
 
