@@ -1451,7 +1451,7 @@ def blog_post(slug):
 
 @app.route("/sitemap.xml")
 def sitemap():
-    """Dynamic sitemap for SEO."""
+    """Dynamic sitemap for SEO - includes all pages and blog posts."""
     from flask import Response
     import xml.etree.ElementTree as ET
     
@@ -1461,9 +1461,29 @@ def sitemap():
     urlset = ET.Element("urlset")
     urlset.set("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9")
     
+    # Main static pages
+    main_pages = [
+        ("/", "1.0", "daily"),
+        ("/blog", "0.9", "daily"),
+        ("/login", "0.8", "monthly"),
+        ("/privacy", "0.5", "yearly"),
+        ("/terms", "0.5", "yearly"),
+    ]
+    
+    for path, priority, changefreq in main_pages:
+        url = ET.SubElement(urlset, "url")
+        loc = ET.SubElement(url, "loc")
+        loc.text = f"{host}{path}"
+        pri = ET.SubElement(url, "priority")
+        pri.text = priority
+    
+    # Blog posts
     for slug in slugs:
-        url = ET.SubElement(urlset, "loc")
-        url.text = f"{host}/blog/{slug}"
+        url = ET.SubElement(urlset, "url")
+        loc = ET.SubElement(url, "loc")
+        loc.text = f"{host}/blog/{slug}"
+        pri = ET.SubElement(url, "priority")
+        pri.text = "0.8"
     
     sitemap_xml = ET.tostring(urlset, encoding="unicode")
     return Response(sitemap_xml, mimetype="application/xml")
