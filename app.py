@@ -1458,19 +1458,18 @@ def sitemap():
     slugs = get_all_slugs()
     host = request.host_url.rstrip("/")
     
-    urlset = ET.Element("urlset")
-    urlset.set("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9")
+    urlset = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
     
     # Main static pages
     main_pages = [
-        ("/", "1.0", "daily"),
-        ("/blog", "0.9", "daily"),
-        ("/login", "0.8", "monthly"),
-        ("/privacy", "0.5", "yearly"),
-        ("/terms", "0.5", "yearly"),
+        ("/", "1.0"),
+        ("/blog", "0.9"),
+        ("/login", "0.8"),
+        ("/privacy", "0.5"),
+        ("/terms", "0.5"),
     ]
     
-    for path, priority, changefreq in main_pages:
+    for path, priority in main_pages:
         url = ET.SubElement(urlset, "url")
         loc = ET.SubElement(url, "loc")
         loc.text = f"{host}{path}"
